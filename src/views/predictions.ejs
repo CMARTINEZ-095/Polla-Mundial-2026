@@ -1,0 +1,62 @@
+<%- include('partials/header') %>
+
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Participante: <%= currentUser.name %></p>
+    <h1>Mis pronósticos</h1>
+    <p class="muted">Puedes cambiar un marcador hasta antes de la hora de inicio del partido.</p>
+  </div>
+  <a class="button secondary" href="/leaderboard">Ver tabla</a>
+</div>
+
+<% groups.forEach((group) => { %>
+  <section class="day-block">
+    <h2><%= group.label %></h2>
+    <div class="match-list">
+      <% group.items.forEach((item) => { const match = item.match; const prediction = item.prediction; %>
+        <article class="match-card <%= item.isLocked ? 'locked' : '' %>">
+          <div class="match-meta">
+            <span class="pill"><%= match.group_name || 'Partido' %></span>
+            <span><%= helpers.formatTime(match.kickoff_at) %></span>
+            <% if (item.isLocked) { %><span class="status closed">Cerrado</span><% } else { %><span class="status open">Abierto</span><% } %>
+          </div>
+          <div class="teams-line">
+            <strong><%= match.home_team %></strong>
+            <span>vs</span>
+            <strong><%= match.away_team %></strong>
+          </div>
+          <% if (match.home_score !== null && match.away_score !== null) { %>
+            <p class="result-line">Resultado oficial: <strong><%= helpers.matchResultLabel(match) %></strong></p>
+          <% } %>
+          <form action="/predictions/<%= match.id %>" method="post" class="score-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <label>
+              <span><%= match.home_team %></span>
+              <input type="number" min="0" max="30" name="home_score" value="<%= prediction ? prediction.home_score : '' %>" <%= item.isLocked ? 'disabled' : 'required' %>>
+            </label>
+            <span class="dash">-</span>
+            <label>
+              <span><%= match.away_team %></span>
+              <input type="number" min="0" max="30" name="away_score" value="<%= prediction ? prediction.away_score : '' %>" <%= item.isLocked ? 'disabled' : 'required' %>>
+            </label>
+            <% if (!item.isLocked) { %>
+              <button class="button primary small" type="submit"><%= prediction ? 'Actualizar' : 'Guardar' %></button>
+            <% } %>
+          </form>
+          <div class="prediction-summary">
+            <% if (prediction) { %>
+              <span>Tu pronóstico: <strong><%= prediction.home_score %> - <%= prediction.away_score %></strong></span>
+              <% if (item.points !== null) { %>
+                <span class="points <%= item.points === 3 ? 'win' : 'lose' %>"><%= item.points %> puntos</span>
+              <% } %>
+            <% } else { %>
+              <span class="muted">Aún no has pronosticado este partido.</span>
+            <% } %>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+<% }) %>
+
+<%- include('partials/footer') %>

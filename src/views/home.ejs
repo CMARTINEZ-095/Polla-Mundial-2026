@@ -1,0 +1,75 @@
+<%- include('partials/header') %>
+
+<section class="hero">
+  <div>
+    <p class="eyebrow">Mundial FIFA 2026</p>
+    <h1>Organiza la polla, registra marcadores y mira la tabla en vivo.</h1>
+    <p class="hero-text">Cada participante pronostica el marcador de cada partido antes de que empiece. Si acierta el marcador exacto, suma 3 puntos.</p>
+    <div class="hero-actions">
+      <% if (currentUser) { %>
+        <a class="button primary" href="/predictions">Registrar mis pronósticos</a>
+      <% } else { %>
+        <a class="button primary" href="/register">Crear mi cuenta</a>
+        <a class="button secondary" href="/login">Ya tengo cuenta</a>
+      <% } %>
+    </div>
+  </div>
+  <div class="hero-card">
+    <h2>Resumen</h2>
+    <div class="stats-grid">
+      <div><strong><%= summary.players %></strong><span>Participantes</span></div>
+      <div><strong><%= summary.total_matches %></strong><span>Partidos</span></div>
+      <div><strong><%= summary.completed_matches %></strong><span>Finalizados</span></div>
+      <div><strong><%= summary.total_predictions %></strong><span>Pronósticos</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="grid two-columns">
+  <div class="card">
+    <div class="section-title">
+      <h2>Próximos partidos</h2>
+      <a href="/predictions">Ver todos</a>
+    </div>
+    <% if (nextMatches.length === 0) { %>
+      <p class="muted">No hay partidos pendientes.</p>
+    <% } else { %>
+      <div class="match-list compact">
+        <% nextMatches.forEach((match) => { %>
+          <article class="match-row">
+            <div class="match-time">
+              <span><%= helpers.formatDateGroup(match.kickoff_at).split(' de ')[0] %></span>
+              <strong><%= helpers.formatTime(match.kickoff_at) %></strong>
+            </div>
+            <div class="match-teams">
+              <span><%= match.home_team %></span>
+              <small>vs</small>
+              <span><%= match.away_team %></span>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="card">
+    <div class="section-title">
+      <h2>Top 5</h2>
+      <a href="/leaderboard">Tabla completa</a>
+    </div>
+    <% if (topPlayers.length === 0) { %>
+      <p class="muted">Todavía no hay participantes en la tabla.</p>
+    <% } else { %>
+      <ol class="ranking-list">
+        <% topPlayers.forEach((player) => { %>
+          <li>
+            <span><%= player.name %></span>
+            <strong><%= player.points %> pts</strong>
+          </li>
+        <% }) %>
+      </ol>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

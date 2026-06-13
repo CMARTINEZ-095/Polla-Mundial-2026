@@ -1,0 +1,47 @@
+<%- include('partials/header') %>
+
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Clasificación</p>
+    <h1>Tabla de posiciones</h1>
+    <p class="muted">La tabla se calcula automáticamente con 3 puntos por marcador exacto.</p>
+  </div>
+  <% if (currentUser && currentUser.role === 'admin') { %>
+    <a class="button secondary" href="/leaderboard.csv">Descargar CSV</a>
+  <% } %>
+</div>
+
+<div class="card table-card">
+  <% if (leaderboard.length === 0) { %>
+    <p class="muted">Todavía no hay participantes registrados.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Participante</th>
+            <th>Puntos</th>
+            <th>Exactos</th>
+            <th>Revisados</th>
+            <th>Pronósticos</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% leaderboard.forEach((player, index) => { %>
+            <tr>
+              <td><strong><%= index + 1 %></strong></td>
+              <td><%= player.name %></td>
+              <td><strong><%= player.points %></strong></td>
+              <td><%= player.exacts %></td>
+              <td><%= player.predictions_checked %></td>
+              <td><%= player.total_predictions %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

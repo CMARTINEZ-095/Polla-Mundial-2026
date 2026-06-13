@@ -1,0 +1,25 @@
+{
+  "name": "polla-mundial-2026",
+  "version": "1.0.0",
+  "description": "App web para registrar pronosticos de marcadores de la Copa Mundial FIFA 2026.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "check": "node --check src/server.js && node --check src/db.js && node --check src/utils.js && node --check src/fixtures.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.1",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {}
+}

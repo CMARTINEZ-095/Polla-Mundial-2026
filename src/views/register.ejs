@@ -1,0 +1,25 @@
+<%- include('partials/header') %>
+
+<section class="auth-card card narrow">
+  <h1>Crear cuenta</h1>
+  <p class="muted">Regístrate con tu nombre y correo para participar en la polla.</p>
+  <form action="/register" method="post" class="form-stack">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>
+      Nombre
+      <input type="text" name="name" required value="<%= values.name || '' %>" autocomplete="name">
+    </label>
+    <label>
+      Correo
+      <input type="email" name="email" required value="<%= values.email || '' %>" autocomplete="email">
+    </label>
+    <label>
+      Clave
+      <input type="password" name="password" required minlength="6" autocomplete="new-password">
+    </label>
+    <button class="button primary" type="submit">Registrarme</button>
+  </form>
+  <p class="muted small">¿Ya tienes cuenta? <a href="/login">Ingresa aquí</a>.</p>
+</section>
+
+<%- include('partials/footer') %>

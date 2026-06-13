@@ -1,0 +1,16 @@
+</main>
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <span>Marcador exacto = 3 puntos.</span>
+    <span>Horarios mostrados en <%= config.timezone %>.</span>
+  </div>
+</footer>
+<script>
+  document.addEventListener('click', function (event) {
+    if (event.target.closest('.main-nav a')) {
+      document.body.classList.remove('nav-open');
+    }
+  });
+</script>
+</body>
+</html>

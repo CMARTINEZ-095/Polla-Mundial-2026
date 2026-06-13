@@ -1,0 +1,34 @@
+databases:
+  - name: polla-mundial-db
+    plan: free
+    databaseName: pollamundial
+    user: pollamundial
+    diskSizeGB: 1
+
+services:
+  - type: web
+    name: polla-mundial-2026
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_NAME
+        value: Polla Mundial 2026
+      - key: TIMEZONE
+        value: America/Bogota
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_NAME
+        value: Administrador
+      - key: ADMIN_EMAIL
+        value: admin@demo.com
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: polla-mundial-db
+          property: connectionString

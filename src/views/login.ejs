@@ -1,0 +1,22 @@
+<%- include('partials/header') %>
+
+<section class="auth-card card narrow">
+  <h1>Ingresar</h1>
+  <p class="muted">Entra para guardar o actualizar tus pronósticos antes del inicio de cada partido.</p>
+  <form action="/login" method="post" class="form-stack">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <input type="hidden" name="next" value="<%= nextUrl %>">
+    <label>
+      Correo
+      <input type="email" name="email" required autocomplete="email">
+    </label>
+    <label>
+      Clave
+      <input type="password" name="password" required autocomplete="current-password">
+    </label>
+    <button class="button primary" type="submit">Ingresar</button>
+  </form>
+  <p class="muted small">¿No tienes cuenta? <a href="/register">Regístrate</a>.</p>
+</section>
+
+<%- include('partials/footer') %>

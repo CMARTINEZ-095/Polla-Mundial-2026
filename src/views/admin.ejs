@@ -1,0 +1,93 @@
+<%- include('partials/header') %>
+
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Panel de administrador</p>
+    <h1>Administración</h1>
+    <p class="muted">Crea partidos, corrige calendario y registra resultados oficiales.</p>
+  </div>
+  <div class="actions-row">
+    <a class="button secondary" href="/admin/users">Usuarios</a>
+    <a class="button secondary" href="/leaderboard.csv">Exportar tabla</a>
+  </div>
+</div>
+
+<section class="stats-grid admin-stats">
+  <div><strong><%= summary.players %></strong><span>Participantes</span></div>
+  <div><strong><%= summary.total_matches %></strong><span>Partidos</span></div>
+  <div><strong><%= summary.completed_matches %></strong><span>Finalizados</span></div>
+  <div><strong><%= summary.total_predictions %></strong><span>Pronósticos</span></div>
+</section>
+
+<section class="card">
+  <h2>Agregar partido</h2>
+  <form action="/admin/matches" method="post" class="admin-form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>
+      Grupo
+      <input type="text" name="group_name" placeholder="Grupo A">
+    </label>
+    <label>
+      Equipo local
+      <input type="text" name="home_team" required>
+    </label>
+    <label>
+      Equipo visitante
+      <input type="text" name="away_team" required>
+    </label>
+    <label>
+      Fecha/hora Colombia
+      <input type="datetime-local" name="kickoff_at" required>
+    </label>
+    <label>
+      Estadio / sede
+      <input type="text" name="venue" placeholder="Opcional">
+    </label>
+    <label>
+      Goles local
+      <input type="number" min="0" max="30" name="home_score" placeholder="Resultado">
+    </label>
+    <label>
+      Goles visitante
+      <input type="number" min="0" max="30" name="away_score" placeholder="Resultado">
+    </label>
+    <button class="button primary" type="submit">Crear partido</button>
+  </form>
+</section>
+
+<section class="card table-card">
+  <div class="section-title">
+    <h2>Partidos cargados</h2>
+    <span class="muted"><%= matches.length %> partidos</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Grupo</th>
+          <th>Partido</th>
+          <th>Resultado</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% matches.forEach((match) => { %>
+          <tr>
+            <td><%= helpers.formatDateTime(match.kickoff_at) %></td>
+            <td><%= match.group_name %></td>
+            <td><strong><%= match.home_team %></strong> vs <strong><%= match.away_team %></strong></td>
+            <td><%= helpers.matchResultLabel(match) %></td>
+            <td><%= match.status === 'finished' ? 'Finalizado' : 'Programado' %></td>
+            <td class="table-actions">
+              <a class="button tiny secondary" href="/admin/matches/<%= match.id %>/edit">Editar</a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

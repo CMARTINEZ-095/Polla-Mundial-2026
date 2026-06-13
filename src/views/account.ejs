@@ -1,0 +1,39 @@
+<%- include('partials/header') %>
+
+<div class="page-heading">
+  <div>
+    <p class="eyebrow"><%= currentUser.email %></p>
+    <h1>Mi cuenta</h1>
+  </div>
+</div>
+
+<section class="grid two-columns">
+  <div class="card">
+    <h2>Datos</h2>
+    <dl class="details-list">
+      <dt>Nombre</dt>
+      <dd><%= currentUser.name %></dd>
+      <dt>Correo</dt>
+      <dd><%= currentUser.email %></dd>
+      <dt>Rol</dt>
+      <dd><%= currentUser.role === 'admin' ? 'Administrador' : 'Participante' %></dd>
+    </dl>
+  </div>
+  <div class="card">
+    <h2>Cambiar clave</h2>
+    <form action="/account/password" method="post" class="form-stack">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>
+        Clave actual
+        <input type="password" name="current_password" required autocomplete="current-password">
+      </label>
+      <label>
+        Nueva clave
+        <input type="password" name="new_password" required minlength="6" autocomplete="new-password">
+      </label>
+      <button class="button primary" type="submit">Actualizar clave</button>
+    </form>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

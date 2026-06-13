@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title ? `${title} | ${config.appName}` : config.appName %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <span class="brand-ball">⚽</span>
+      <span><%= config.appName %></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-label="Abrir menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
+    <nav class="main-nav">
+      <a href="/predictions">Mis pronósticos</a>
+      <a href="/leaderboard">Tabla</a>
+      <a href="/rules">Reglas</a>
+      <% if (currentUser && currentUser.role === 'admin') { %>
+        <a href="/admin">Admin</a>
+      <% } %>
+      <% if (currentUser) { %>
+        <a href="/account">Mi cuenta</a>
+        <form class="logout-form" action="/logout" method="post">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit">Salir</button>
+        </form>
+      <% } else { %>
+        <a href="/login">Ingresar</a>
+        <a class="nav-cta" href="/register">Registrarme</a>
+      <% } %>
+    </nav>
+  </div>
+</header>
+<main class="container page">
+  <% if (flash) { %>
+    <div class="alert alert-<%= flash.type %>"><%= flash.message %></div>
+  <% } %>
