@@ -7,6 +7,10 @@
     <p class="muted">Crea partidos, corrige calendario y registra resultados oficiales.</p>
   </div>
   <div class="actions-row">
+    <form action="/admin/sync-results" method="post" class="inline-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="button secondary" type="submit">Sincronizar resultados</button>
+    </form>
     <a class="button secondary" href="/admin/users">Usuarios</a>
     <a class="button secondary" href="/leaderboard.csv">Exportar tabla</a>
   </div>
@@ -79,7 +83,7 @@
             <td><%= match.group_name %></td>
             <td><strong><%= match.home_team %></strong> vs <strong><%= match.away_team %></strong></td>
             <td><%= helpers.matchResultLabel(match) %></td>
-            <td><%= match.status === 'finished' ? 'Finalizado' : 'Programado' %></td>
+            <td><%= match.status === 'finished' ? 'Finalizado' : (match.status === 'live' ? 'En vivo' : 'Programado') %></td>
             <td class="table-actions">
               <a class="button tiny secondary" href="/admin/matches/<%= match.id %>/edit">Editar</a>
             </td>

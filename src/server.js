@@ -8,6 +8,7 @@ const crypto = require("crypto");
 
 const config = require("./config");
 const db = require("./db");
+const { syncResultsOnce, startResultsSync } = require("./results-sync");
 const {
   normalizeEmail,
   cleanText,
@@ -329,13 +330,14 @@ app.get("/leaderboard.csv", requireAdmin, async (req, res, next) => {
   try {
     const leaderboard = await db.getLeaderboard();
     const rows = [
-      ["posicion", "nombre", "correo", "puntos", "marcadores_exactos", "pronosticos_revisados", "pronosticos_totales"],
+      ["posicion", "nombre", "correo", "puntos", "marcadores_exactos", "ganador_o_empate", "pronosticos_revisados", "pronosticos_totales"],
       ...leaderboard.map((row, index) => [
         index + 1,
         row.name,
         row.email,
         row.points,
         row.exacts,
+        row.outcomes || 0,
         row.predictions_checked,
         row.total_predictions
       ])
@@ -347,6 +349,20 @@ app.get("/leaderboard.csv", requireAdmin, async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+app.post("/admin/sync-results", requireAdmin, async (req, res) => {
+  try {
+    const result = await syncResultsOnce();
+    if (result.skipped) {
+      flash(req, "warning", result.message);
+    } else {
+      flash(req, "success", `Sincronizacion ejecutada. Partidos actualizados: ${result.updates.length}.`);
+    }
+  } catch (error) {
+    flash(req, "danger", error.message);
+  }
+  res.redirect("/admin");
 });
 
 app.get("/admin", requireAdmin, async (req, res, next) => {
@@ -444,6 +460,7 @@ async function start() {
     console.warn("ADVERTENCIA: define SESSION_SECRET en produccion.");
   }
   await db.init();
+  startResultsSync();
   app.listen(config.port, () => {
     console.log(`${config.appName} escuchando en http://localhost:${config.port}`);
   });

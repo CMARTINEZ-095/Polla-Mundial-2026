@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const { Pool } = require("pg");
 const config = require("./config");
 const { GROUP_STAGE_FIXTURES } = require("./fixtures");
-const { normalizeEmail } = require("./utils");
+const { normalizeEmail, pointsForPrediction } = require("./utils");
 
 function toIso(value) {
   if (!value) return null;
@@ -36,6 +36,9 @@ function normalizeMatch(row) {
     status: row.status || "scheduled",
     home_score: row.home_score === null || row.home_score === undefined ? null : Number(row.home_score),
     away_score: row.away_score === null || row.away_score === undefined ? null : Number(row.away_score),
+    external_fixture_id: row.external_fixture_id || null,
+    match_key: row.match_key || null,
+    auto_update: row.auto_update === undefined ? true : Boolean(row.auto_update),
     created_at: toIso(row.created_at),
     updated_at: toIso(row.updated_at)
   };
@@ -55,7 +58,7 @@ function normalizePrediction(row) {
 }
 
 function leaderboardSort(a, b) {
-  return b.points - a.points || b.exacts - a.exacts || b.predictions_checked - a.predictions_checked || a.name.localeCompare(b.name, "es");
+  return b.points - a.points || b.exacts - a.exacts || (b.outcomes || 0) - (a.outcomes || 0) || b.predictions_checked - a.predictions_checked || a.name.localeCompare(b.name, "es");
 }
 
 class JsonDatabase {
@@ -138,23 +141,44 @@ class JsonDatabase {
   }
 
   async seedMatches() {
-    if (this.data.matches.length > 0) return;
+    const allowedKeys = new Set(GROUP_STAGE_FIXTURES.map((fixture) => fixture.matchKey));
+    this.data.matches = this.data.matches.filter((match) => match.match_key && allowedKeys.has(match.match_key));
     const now = new Date().toISOString();
+
     for (const fixture of GROUP_STAGE_FIXTURES) {
-      this.data.matches.push({
-        id: this.nextId("matches"),
-        group_name: fixture.groupName,
-        home_team: fixture.homeTeam,
-        away_team: fixture.awayTeam,
-        kickoff_at: new Date(fixture.kickoffAt).toISOString(),
-        venue: fixture.venue || "",
-        status: "scheduled",
-        home_score: null,
-        away_score: null,
-        created_at: now,
-        updated_at: now
-      });
+      const existing = this.data.matches.find((match) => match.match_key === fixture.matchKey);
+      if (existing) {
+        Object.assign(existing, {
+          group_name: fixture.groupName,
+          home_team: fixture.homeTeam,
+          away_team: fixture.awayTeam,
+          kickoff_at: new Date(fixture.kickoffAt).toISOString(),
+          venue: fixture.venue || existing.venue || "",
+          auto_update: true,
+          updated_at: now
+        });
+      } else {
+        this.data.matches.push({
+          id: this.nextId("matches"),
+          group_name: fixture.groupName,
+          home_team: fixture.homeTeam,
+          away_team: fixture.awayTeam,
+          kickoff_at: new Date(fixture.kickoffAt).toISOString(),
+          venue: fixture.venue || "",
+          status: "scheduled",
+          home_score: null,
+          away_score: null,
+          external_fixture_id: null,
+          match_key: fixture.matchKey,
+          auto_update: true,
+          created_at: now,
+          updated_at: now
+        });
+      }
     }
+
+    const matchIds = new Set(this.data.matches.map((match) => Number(match.id)));
+    this.data.predictions = this.data.predictions.filter((prediction) => matchIds.has(Number(prediction.match_id)));
   }
 
   async getUserByEmail(email) {
@@ -221,6 +245,9 @@ class JsonDatabase {
       status: data.status || "scheduled",
       home_score: data.home_score === undefined ? null : data.home_score,
       away_score: data.away_score === undefined ? null : data.away_score,
+      external_fixture_id: data.external_fixture_id || null,
+      match_key: data.match_key || null,
+      auto_update: data.auto_update === undefined ? false : Boolean(data.auto_update),
       created_at: now,
       updated_at: now
     };
@@ -242,10 +269,13 @@ class JsonDatabase {
       status: data.status ?? match.status,
       home_score: data.home_score === undefined ? match.home_score : data.home_score,
       away_score: data.away_score === undefined ? match.away_score : data.away_score,
+      external_fixture_id: data.external_fixture_id === undefined ? match.external_fixture_id : data.external_fixture_id,
+      match_key: data.match_key === undefined ? match.match_key : data.match_key,
+      auto_update: data.auto_update === undefined ? match.auto_update : Boolean(data.auto_update),
       updated_at: new Date().toISOString()
     });
 
-    if (match.home_score !== null && match.away_score !== null) {
+    if (match.home_score !== null && match.away_score !== null && data.status === undefined) {
       match.status = "finished";
     }
 
@@ -302,15 +332,19 @@ class JsonDatabase {
       const userPredictions = this.data.predictions.filter((prediction) => Number(prediction.user_id) === Number(user.id));
       let points = 0;
       let exacts = 0;
+      let outcomes = 0;
       let predictionsChecked = 0;
 
       for (const prediction of userPredictions) {
         const match = matchesById.get(Number(prediction.match_id));
         if (!match || match.home_score === null || match.away_score === null) continue;
         predictionsChecked += 1;
-        if (Number(prediction.home_score) === Number(match.home_score) && Number(prediction.away_score) === Number(match.away_score)) {
-          points += 3;
+        const earned = pointsForPrediction(prediction, match);
+        points += earned;
+        if (earned === 3) {
           exacts += 1;
+        } else if (earned === 1) {
+          outcomes += 1;
         }
       }
 
@@ -320,6 +354,7 @@ class JsonDatabase {
         email: user.email,
         points,
         exacts,
+        outcomes,
         predictions_checked: predictionsChecked,
         total_predictions: userPredictions.length
       };
@@ -386,6 +421,9 @@ class PgDatabase {
         status TEXT NOT NULL DEFAULT 'scheduled',
         home_score INTEGER,
         away_score INTEGER,
+        external_fixture_id TEXT,
+        match_key TEXT UNIQUE,
+        auto_update BOOLEAN NOT NULL DEFAULT TRUE,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
@@ -401,6 +439,10 @@ class PgDatabase {
         UNIQUE(user_id, match_id)
       );
 
+      ALTER TABLE matches ADD COLUMN IF NOT EXISTS external_fixture_id TEXT;
+      ALTER TABLE matches ADD COLUMN IF NOT EXISTS match_key TEXT;
+      ALTER TABLE matches ADD COLUMN IF NOT EXISTS auto_update BOOLEAN NOT NULL DEFAULT TRUE;
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_matches_match_key ON matches(match_key) WHERE match_key IS NOT NULL;
       CREATE INDEX IF NOT EXISTS idx_matches_kickoff_at ON matches(kickoff_at);
       CREATE INDEX IF NOT EXISTS idx_predictions_user_id ON predictions(user_id);
       CREATE INDEX IF NOT EXISTS idx_predictions_match_id ON predictions(match_id);
@@ -427,20 +469,26 @@ class PgDatabase {
   }
 
   async seedMatches() {
-    const count = await this.pool.query("SELECT COUNT(*)::int AS count FROM matches");
-    if (Number(count.rows[0].count) > 0) return;
+    const keys = GROUP_STAGE_FIXTURES.map((fixture) => fixture.matchKey);
+    await this.pool.query(
+      "DELETE FROM matches WHERE match_key IS NULL OR NOT (match_key = ANY($1::text[]))",
+      [keys]
+    );
 
     for (const fixture of GROUP_STAGE_FIXTURES) {
-      await this.createMatch({
-        group_name: fixture.groupName,
-        home_team: fixture.homeTeam,
-        away_team: fixture.awayTeam,
-        kickoff_at: new Date(fixture.kickoffAt).toISOString(),
-        venue: fixture.venue || "",
-        status: "scheduled",
-        home_score: null,
-        away_score: null
-      });
+      await this.pool.query(
+        `INSERT INTO matches (group_name, home_team, away_team, kickoff_at, venue, status, home_score, away_score, match_key, auto_update)
+         VALUES ($1, $2, $3, $4, $5, 'scheduled', NULL, NULL, $6, TRUE)
+         ON CONFLICT (match_key)
+         DO UPDATE SET group_name = EXCLUDED.group_name,
+                       home_team = EXCLUDED.home_team,
+                       away_team = EXCLUDED.away_team,
+                       kickoff_at = EXCLUDED.kickoff_at,
+                       venue = EXCLUDED.venue,
+                       auto_update = TRUE,
+                       updated_at = NOW()`,
+        [fixture.groupName, fixture.homeTeam, fixture.awayTeam, new Date(fixture.kickoffAt).toISOString(), fixture.venue || "", fixture.matchKey]
+      );
     }
   }
 
@@ -485,8 +533,8 @@ class PgDatabase {
 
   async createMatch(data) {
     const result = await this.pool.query(
-      `INSERT INTO matches (group_name, home_team, away_team, kickoff_at, venue, status, home_score, away_score)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `INSERT INTO matches (group_name, home_team, away_team, kickoff_at, venue, status, home_score, away_score, external_fixture_id, match_key, auto_update)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
       [
         data.group_name || "",
@@ -496,7 +544,10 @@ class PgDatabase {
         data.venue || "",
         data.status || "scheduled",
         data.home_score ?? null,
-        data.away_score ?? null
+        data.away_score ?? null,
+        data.external_fixture_id || null,
+        data.match_key || null,
+        data.auto_update === undefined ? false : Boolean(data.auto_update)
       ]
     );
     return normalizeMatch(result.rows[0]);
@@ -514,10 +565,13 @@ class PgDatabase {
       venue: data.venue ?? existing.venue,
       status: data.status ?? existing.status,
       home_score: data.home_score === undefined ? existing.home_score : data.home_score,
-      away_score: data.away_score === undefined ? existing.away_score : data.away_score
+      away_score: data.away_score === undefined ? existing.away_score : data.away_score,
+      external_fixture_id: data.external_fixture_id === undefined ? existing.external_fixture_id : data.external_fixture_id,
+      match_key: data.match_key === undefined ? existing.match_key : data.match_key,
+      auto_update: data.auto_update === undefined ? existing.auto_update : Boolean(data.auto_update)
     };
 
-    if (next.home_score !== null && next.away_score !== null) {
+    if (next.home_score !== null && next.away_score !== null && data.status === undefined) {
       next.status = "finished";
     }
 
@@ -531,10 +585,13 @@ class PgDatabase {
            status = $6,
            home_score = $7,
            away_score = $8,
+           external_fixture_id = $9,
+           match_key = $10,
+           auto_update = $11,
            updated_at = NOW()
-       WHERE id = $9
+       WHERE id = $12
        RETURNING *`,
-      [next.group_name, next.home_team, next.away_team, next.kickoff_at, next.venue, next.status, next.home_score, next.away_score, id]
+      [next.group_name, next.home_team, next.away_team, next.kickoff_at, next.venue, next.status, next.home_score, next.away_score, next.external_fixture_id, next.match_key, next.auto_update, id]
     );
     return normalizeMatch(result.rows[0]);
   }
@@ -580,7 +637,14 @@ class PgDatabase {
            AND m.away_score IS NOT NULL
            AND p.home_score = m.home_score
            AND p.away_score = m.away_score
-          THEN 3 ELSE 0 END), 0)::int AS points,
+          THEN 3
+          WHEN p.id IS NOT NULL
+           AND m.home_score IS NOT NULL
+           AND m.away_score IS NOT NULL
+           AND (CASE WHEN p.home_score > p.away_score THEN 'H' WHEN p.home_score < p.away_score THEN 'A' ELSE 'D' END) =
+               (CASE WHEN m.home_score > m.away_score THEN 'H' WHEN m.home_score < m.away_score THEN 'A' ELSE 'D' END)
+          THEN 1
+          ELSE 0 END), 0)::int AS points,
         COALESCE(SUM(CASE
           WHEN p.id IS NOT NULL
            AND m.home_score IS NOT NULL
@@ -592,6 +656,14 @@ class PgDatabase {
           WHEN p.id IS NOT NULL
            AND m.home_score IS NOT NULL
            AND m.away_score IS NOT NULL
+           AND NOT (p.home_score = m.home_score AND p.away_score = m.away_score)
+           AND (CASE WHEN p.home_score > p.away_score THEN 'H' WHEN p.home_score < p.away_score THEN 'A' ELSE 'D' END) =
+               (CASE WHEN m.home_score > m.away_score THEN 'H' WHEN m.home_score < m.away_score THEN 'A' ELSE 'D' END)
+          THEN 1 ELSE 0 END), 0)::int AS outcomes,
+        COALESCE(SUM(CASE
+          WHEN p.id IS NOT NULL
+           AND m.home_score IS NOT NULL
+           AND m.away_score IS NOT NULL
           THEN 1 ELSE 0 END), 0)::int AS predictions_checked,
         COUNT(p.id)::int AS total_predictions
       FROM users u
@@ -599,7 +671,7 @@ class PgDatabase {
       LEFT JOIN matches m ON m.id = p.match_id
       WHERE u.role <> 'admin'
       GROUP BY u.id
-      ORDER BY points DESC, exacts DESC, predictions_checked DESC, u.name ASC
+      ORDER BY points DESC, exacts DESC, outcomes DESC, predictions_checked DESC, u.name ASC
     `);
 
     return result.rows.map((row) => ({
@@ -608,6 +680,7 @@ class PgDatabase {
       email: row.email,
       points: Number(row.points),
       exacts: Number(row.exacts),
+      outcomes: Number(row.outcomes),
       predictions_checked: Number(row.predictions_checked),
       total_predictions: Number(row.total_predictions)
     }));

@@ -2,15 +2,17 @@
 
 <section class="card prose">
   <h1>Reglas de la polla</h1>
-  <p>El objetivo es acertar la mayor cantidad de marcadores exactos durante el Mundial.</p>
+  <p>El objetivo es sumar la mayor cantidad de puntos en los partidos seleccionados del Mundial.</p>
   <h2>Puntuación</h2>
-  <p><strong>Marcador exacto:</strong> 3 puntos. Cualquier otro resultado suma 0 puntos.</p>
+  <p><strong>Marcador exacto:</strong> 3 puntos.</p>
+  <p><strong>Ganador correcto o empate correcto:</strong> 1 punto.</p>
+  <p><strong>Pronóstico incorrecto:</strong> 0 puntos.</p>
   <h2>Cierre de pronósticos</h2>
   <p>Cada pronóstico se puede crear o editar hasta antes de la hora de inicio del partido. Después queda bloqueado.</p>
   <h2>Resultados</h2>
-  <p>El administrador registra el resultado final de cada partido. La tabla se recalcula automáticamente.</p>
+  <p>La app puede sincronizar resultados automáticamente con API-Football cuando la variable API_FOOTBALL_KEY está configurada. Mientras el partido esté en vivo, la tabla puede cambiar; al finalizar, queda el puntaje definitivo.</p>
   <h2>Desempates</h2>
-  <p>La tabla ordena por puntos, luego por cantidad de marcadores exactos, luego por pronósticos revisados y finalmente por nombre.</p>
+  <p>La tabla ordena por puntos, luego por cantidad de marcadores exactos, luego por aciertos de ganador/empate, luego por pronósticos revisados y finalmente por nombre.</p>
 </section>
 
 <%- include('partials/footer') %>

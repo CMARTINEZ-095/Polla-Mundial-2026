@@ -11,7 +11,13 @@ const config = {
   dataFile: process.env.DATA_FILE || path.join(__dirname, "..", "data", "db.json"),
   adminEmail: (process.env.ADMIN_EMAIL || "admin@demo.com").toLowerCase().trim(),
   adminPassword: process.env.ADMIN_PASSWORD || "admin123",
-  adminName: process.env.ADMIN_NAME || "Administrador"
+  adminName: process.env.ADMIN_NAME || "Administrador",
+  apiFootballKey: process.env.API_FOOTBALL_KEY || "",
+  apiFootballHost: process.env.API_FOOTBALL_HOST || "v3.football.api-sports.io",
+  apiFootballLeagueId: process.env.API_FOOTBALL_LEAGUE_ID || "1",
+  apiFootballSeason: process.env.API_FOOTBALL_SEASON || "2026",
+  resultsSyncEnabled: String(process.env.RESULTS_SYNC_ENABLED || "true").toLowerCase() !== "false",
+  resultsSyncMinutes: Math.max(1, Number(process.env.RESULTS_SYNC_MINUTES || 5))
 };
 
 module.exports = config;

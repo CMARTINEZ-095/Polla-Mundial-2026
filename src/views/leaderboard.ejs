@@ -4,7 +4,7 @@
   <div>
     <p class="eyebrow">Clasificación</p>
     <h1>Tabla de posiciones</h1>
-    <p class="muted">La tabla se calcula automáticamente con 3 puntos por marcador exacto.</p>
+    <p class="muted">La tabla se calcula automáticamente con 3 puntos por marcador exacto y 1 punto por acertar ganador o empate.</p>
   </div>
   <% if (currentUser && currentUser.role === 'admin') { %>
     <a class="button secondary" href="/leaderboard.csv">Descargar CSV</a>
@@ -23,6 +23,7 @@
             <th>Participante</th>
             <th>Puntos</th>
             <th>Exactos</th>
+            <th>Ganador/empate</th>
             <th>Revisados</th>
             <th>Pronósticos</th>
           </tr>
@@ -34,6 +35,7 @@
               <td><%= player.name %></td>
               <td><strong><%= player.points %></strong></td>
               <td><%= player.exacts %></td>
+              <td><%= player.outcomes || 0 %></td>
               <td><%= player.predictions_checked %></td>
               <td><%= player.total_predictions %></td>
             </tr>

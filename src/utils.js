@@ -108,11 +108,26 @@ function matchResultLabel(match) {
   return `${match.home_score} - ${match.away_score}`;
 }
 
+function resultSign(homeScore, awayScore) {
+  const home = Number(homeScore);
+  const away = Number(awayScore);
+  if (home > away) return "H";
+  if (home < away) return "A";
+  return "D";
+}
+
 function pointsForPrediction(prediction, match) {
   if (!prediction || match.home_score === null || match.home_score === undefined || match.away_score === null || match.away_score === undefined) {
     return null;
   }
-  return Number(prediction.home_score) === Number(match.home_score) && Number(prediction.away_score) === Number(match.away_score) ? 3 : 0;
+
+  const predictedHome = Number(prediction.home_score);
+  const predictedAway = Number(prediction.away_score);
+  const realHome = Number(match.home_score);
+  const realAway = Number(match.away_score);
+
+  if (predictedHome === realHome && predictedAway === realAway) return 3;
+  return resultSign(predictedHome, predictedAway) === resultSign(realHome, realAway) ? 1 : 0;
 }
 
 function csvEscape(value) {
@@ -135,6 +150,7 @@ module.exports = {
   toBogotaDateTimeLocal,
   isMatchLocked,
   matchResultLabel,
+  resultSign,
   pointsForPrediction,
   csvEscape
 };
