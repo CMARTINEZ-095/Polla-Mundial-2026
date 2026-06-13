@@ -442,7 +442,7 @@ class PgDatabase {
       ALTER TABLE matches ADD COLUMN IF NOT EXISTS external_fixture_id TEXT;
       ALTER TABLE matches ADD COLUMN IF NOT EXISTS match_key TEXT;
       ALTER TABLE matches ADD COLUMN IF NOT EXISTS auto_update BOOLEAN NOT NULL DEFAULT TRUE;
-      CREATE UNIQUE INDEX IF NOT EXISTS idx_matches_match_key ON matches(match_key) WHERE match_key IS NOT NULL;
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_matches_match_key ON matches(match_key);
       CREATE INDEX IF NOT EXISTS idx_matches_kickoff_at ON matches(kickoff_at);
       CREATE INDEX IF NOT EXISTS idx_predictions_user_id ON predictions(user_id);
       CREATE INDEX IF NOT EXISTS idx_predictions_match_id ON predictions(match_id);
