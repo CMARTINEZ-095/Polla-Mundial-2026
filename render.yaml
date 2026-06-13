@@ -3,7 +3,7 @@ databases:
     plan: free
     databaseName: pollamundial
     user: pollamundial
-    diskSizeGB: 1
+    
 
 services:
   - type: web
