@@ -98,12 +98,12 @@ body::before {
 }
 
 .brand-logo__img {
-  width: 120%;
-  height: 120%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  object-position: center 56%;
+  object-position: center 50%;
   display: block;
-  transform: scale(0.96);
+  transform: scale(1.28);
 }
 
 .main-nav {
