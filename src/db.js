@@ -142,7 +142,7 @@ class JsonDatabase {
 
   async seedMatches() {
     const allowedKeys = new Set(GROUP_STAGE_FIXTURES.map((fixture) => fixture.matchKey));
-    this.data.matches = this.data.matches.filter((match) => match.match_key && allowedKeys.has(match.match_key));
+    this.data.matches = this.data.matches.filter((match) => !match.match_key || allowedKeys.has(match.match_key));
     const now = new Date().toISOString();
 
     for (const fixture of GROUP_STAGE_FIXTURES) {
@@ -472,7 +472,7 @@ class PgDatabase {
   async seedMatches() {
     const keys = GROUP_STAGE_FIXTURES.map((fixture) => fixture.matchKey);
     await this.pool.query(
-      "DELETE FROM matches WHERE match_key IS NULL OR NOT (match_key = ANY($1::text[]))",
+      "DELETE FROM matches WHERE match_key IS NOT NULL AND NOT (match_key = ANY($1::text[]))",
       [keys]
     );
 
@@ -705,5 +705,7 @@ class PgDatabase {
 }
 
 const db = config.databaseUrl ? new PgDatabase(config) : new JsonDatabase(config);
+
+
 
 module.exports = db;

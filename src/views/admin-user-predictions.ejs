@@ -1,0 +1,53 @@
+<%- include('partials/header') %>
+
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Administrador</p>
+    <h1>Pronósticos de <%= user.name %></h1>
+    <p class="muted"><%= user.email %> · <%= totalPredictions %> pronósticos registrados</p>
+  </div>
+  <a class="button secondary" href="/admin/users">Volver a usuarios</a>
+</div>
+
+<section class="card table-card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Partido</th>
+          <th>Fecha</th>
+          <th>Pronóstico</th>
+          <th>Resultado</th>
+          <th>Puntos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach((row) => { %>
+          <tr>
+            <td>
+              <strong><%= row.match.home_team %></strong> vs <strong><%= row.match.away_team %></strong>
+            </td>
+            <td><%= helpers.formatDateTime(row.match.kickoff_at) %></td>
+            <td>
+              <% if (row.prediction) { %>
+                <%= row.prediction.home_score %> - <%= row.prediction.away_score %>
+              <% } else { %>
+                <span class="muted">Sin pronóstico</span>
+              <% } %>
+            </td>
+            <td><%= helpers.matchResultLabel(row.match) %></td>
+            <td>
+              <% if (row.prediction && row.points !== null) { %>
+                <%= row.points %>
+              <% } else { %>
+                <span class="muted">-</span>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

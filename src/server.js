@@ -62,6 +62,10 @@ function flash(req, type, message) {
   req.session.flash = { type, message };
 }
 
+function generateTemporaryPassword() {
+  return crypto.randomBytes(9).toString("base64url");
+}
+
 app.use((req, res, next) => {
   if (!req.session.csrfToken) {
     req.session.csrfToken = crypto.randomBytes(32).toString("hex");
@@ -438,6 +442,70 @@ app.get("/admin/users", requireAdmin, async (req, res, next) => {
   try {
     const users = await db.listUsers();
     res.render("admin-users", { title: "Usuarios", users });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/admin/users/:id/predictions", requireAdmin, async (req, res, next) => {
+  try {
+    const user = await db.getUserById(req.params.id);
+    if (!user || user.role === "admin") {
+      flash(req, "danger", "Usuario no encontrado.");
+      return res.redirect("/admin/users");
+    }
+
+    const [matches, predictions] = await Promise.all([
+      db.listMatches(),
+      db.listPredictionsByUser(user.id)
+    ]);
+    const predictionsByMatchId = new Map(predictions.map((prediction) => [Number(prediction.match_id), prediction]));
+    const rows = matches.map((match) => {
+      const prediction = predictionsByMatchId.get(Number(match.id)) || null;
+      return {
+        match,
+        prediction,
+        points: pointsForPrediction(prediction, match)
+      };
+    });
+
+    res.render("admin-user-predictions", {
+      title: `Pronósticos de ${user.name}`,
+      user,
+      rows,
+      totalPredictions: predictions.length
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/admin/users/:id/password", requireAdmin, async (req, res, next) => {
+  try {
+    const user = await db.getUserById(req.params.id);
+    if (!user) {
+      flash(req, "danger", "Usuario no encontrado.");
+      return res.redirect("/admin/users");
+    }
+
+    const submittedPassword = String(req.body.new_password || "");
+    const password = submittedPassword.trim() ? submittedPassword : generateTemporaryPassword();
+
+    if (submittedPassword.trim() && password.length < 6) {
+      flash(req, "danger", "La nueva clave debe tener minimo 6 caracteres.");
+      return res.redirect("/admin/users");
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    await db.updateUserPassword(user.id, passwordHash);
+
+    if (submittedPassword.trim()) {
+      flash(req, "success", `Clave actualizada para ${user.name}.`);
+    } else {
+      flash(req, "warning", `Clave temporal creada para ${user.name}: ${password}`);
+    }
+
+    res.redirect("/admin/users");
   } catch (error) {
     next(error);
   }

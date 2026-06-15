@@ -9,6 +9,7 @@ App web en Node.js + Express para registrar pronosticos de marcadores del Mundia
 - Bloqueo automatico del pronostico cuando inicia el partido.
 - Panel de administrador para crear, editar y eliminar partidos.
 - Registro de resultados oficiales por el administrador.
+- Restablecimiento o generacion de claves para usuarios desde el panel administrador.
 - Tabla de posiciones automatica.
 - Exportacion CSV de la tabla para el administrador.
 - Calendario inicial precargado desde las imagenes compartidas, editable desde el panel admin.
@@ -71,6 +72,8 @@ Clave: admin123
 ```
 
 Entra con ese usuario, ve a **Mi cuenta** y cambia la clave. Tambien puedes cambiar `ADMIN_EMAIL` y `ADMIN_PASSWORD` en `.env` antes del primer inicio.
+
+Desde **Admin > Usuarios** tambien puedes escribir una nueva clave para cualquier usuario o dejar el campo en blanco para generar una clave temporal segura.
 
 ## Base de datos
 
