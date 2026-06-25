@@ -15,63 +15,153 @@
         </div>
     </div>
 
-    <% visibleMatches.forEach(({ match, isVisible, predictions })=> { %>
-        <section class="card table-card">
-            <div class="section-title">
-                <h2>
-                    <%= match.home_team %> vs <%= match.away_team %>
-                </h2>
-                <span class="muted">
-                    <%= helpers.formatDateTime(match.kickoff_at) %>
-                </span>
-            </div>
+    <section class="card community-search-card">
+        <label>
+            Buscar participante
+            <input type="text" id="communitySearch" placeholder="Escribe un nombre, por ejemplo: Carlos"
+                autocomplete="off">
+        </label>
+    </section>
 
-            <% if (!isVisible) { %>
-                <p class="muted">🔒 Los pronósticos estarán disponibles cuando comience el partido.</p>
-                <% } else if (!predictions.length) { %>
-                    <p class="muted">Nadie ha pronosticado este partido todavía.</p>
-                    <% } else { %>
-                        <div class="community-predictions-list">
-                            <% predictions.forEach((item)=> { %>
-                                <article class="community-prediction-card">
-                                    <div class="community-prediction-player">
-                                        <span>Participante</span>
-                                        <strong>
-                                            <%= item.user_name || 'Sin nombre' %>
-                                        </strong>
-                                    </div>
+    <div class="community-accordion">
 
-                                    <div class="community-prediction-grid">
-                                        <div>
-                                            <span>Pronóstico</span>
-                                            <strong>
-                                                <%= item.prediction_home_score %> - <%= item.prediction_away_score %>
-                                            </strong>
-                                        </div>
+        <% visibleMatches.forEach(({ match, isVisible, predictions }, index)=> { %>
 
-                                        <div>
-                                            <span>Resultado Oficial</span>
-                                            <strong>
-                                                <% if (item.real_home_score===null || item.real_away_score===null) { %>
-                                                    Pendiente
-                                                    <% } else { %>
-                                                        <%= item.real_home_score %> - <%= item.real_away_score %>
-                                                                <% } %>
-                                            </strong>
-                                        </div>
+            <details class="community-match-card" <%=index===0 ? 'open' : '' %>>
+                <summary class="community-match-summary">
+                    <div>
+                        <h2>
+                            <%= match.home_team %> vs <%= match.away_team %>
+                        </h2>
+                        <p class="muted">
+                            <%= helpers.formatDateTime(match.kickoff_at) %>
+                        </p>
+                    </div>
 
-                                        <div>
-                                            <span>Puntos</span>
-                                            <strong>
-                                                <%= item.points===null ? 'Pendiente' : item.points %>
-                                            </strong>
-                                        </div>
-                                    </div>
-                                </article>
-                                <% }) %>
-                        </div>
-                        <% } %>
-        </section>
-        <% }) %>
+                    <div class="community-match-count">
+                        <% if (!isVisible) { %>
+                            🔒 Oculto
+                            <% } else { %>
+                                👥 <%= predictions.length %> pronósticos
+                                    <% } %>
+                    </div>
+                </summary>
 
-            <%- include('partials/footer') %>
+                <div class="community-match-content">
+
+                    <% if (!isVisible) { %>
+
+                        <p class="muted">
+                            🔒 Los pronósticos estarán disponibles cuando comience el partido.
+                        </p>
+
+                        <% } else if (!predictions.length) { %>
+
+                            <p class="muted">
+                                Nadie ha pronosticado este partido todavía.
+                            </p>
+
+                            <% } else { %>
+
+                                <div class="community-predictions-list">
+
+                                    <% predictions.forEach((item)=> {
+                                        let pointClass = 'points-pending';
+                                        let pointText = 'Pendiente';
+
+                                        if (item.points !== null) {
+                                        pointText = `${item.points} puntos`;
+                                        if (Number(item.points) === 3) pointClass = 'points-exact';
+                                        else if (Number(item.points) === 1) pointClass = 'points-good';
+                                        else pointClass = 'points-zero';
+                                        }
+                                        %>
+
+                                        <article class="community-prediction-card"
+                                            data-search-name="<%= String(item.user_name || '').toLowerCase() %>">
+                                            <div class="community-prediction-player">
+                                                <span>Participante</span>
+                                                <strong>
+                                                    <%= item.user_name || 'Sin nombre' %>
+                                                </strong>
+                                            </div>
+
+                                            <div class="community-prediction-grid">
+                                                <div>
+                                                    <span>Pronóstico</span>
+                                                    <strong>
+                                                        <%= item.prediction_home_score %> - <%=
+                                                                item.prediction_away_score %>
+                                                    </strong>
+                                                </div>
+
+                                                <div>
+                                                    <span>Resultado oficial</span>
+                                                    <strong>
+                                                        <% if (item.real_home_score===null ||
+                                                            item.real_away_score===null) { %>
+                                                            Pendiente
+                                                            <% } else { %>
+                                                                <%= item.real_home_score %> - <%= item.real_away_score
+                                                                        %>
+                                                                        <% } %>
+                                                    </strong>
+                                                </div>
+
+                                                <div>
+                                                    <span>Puntos</span>
+                                                    <strong class="community-points <%= pointClass %>">
+                                                        <%= pointText %>
+                                                    </strong>
+                                                </div>
+                                            </div>
+                                        </article>
+
+                                        <% }) %>
+
+                                </div>
+
+                                <p class="muted community-no-results" style="display:none;">
+                                    No se encontraron participantes con ese nombre en este partido.
+                                </p>
+
+                                <% } %>
+
+                </div>
+            </details>
+
+            <% }) %>
+
+    </div>
+
+    <script>
+        const searchInput = document.getElementById("communitySearch");
+
+        if (searchInput) {
+            searchInput.addEventListener("input", () => {
+                const value = searchInput.value.trim().toLowerCase();
+                const cards = document.querySelectorAll(".community-prediction-card");
+
+                cards.forEach((card) => {
+                    const name = card.dataset.searchName || "";
+                    card.style.display = !value || name.includes(value) ? "" : "none";
+                });
+
+                document.querySelectorAll(".community-match-card").forEach((matchCard) => {
+                    const visibleCards = matchCard.querySelectorAll(".community-prediction-card:not([style*='display: none'])");
+                    const allCards = matchCard.querySelectorAll(".community-prediction-card");
+                    const noResults = matchCard.querySelector(".community-no-results");
+
+                    if (noResults && allCards.length > 0) {
+                        noResults.style.display = visibleCards.length === 0 ? "" : "none";
+                    }
+
+                    if (value && visibleCards.length > 0) {
+                        matchCard.open = true;
+                    }
+                });
+            });
+        }
+    </script>
+
+    <%- include('partials/footer') %>
