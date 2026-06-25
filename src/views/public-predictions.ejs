@@ -107,23 +107,73 @@
                                             <div class="community-prediction-grid">
                                                 <div>
                                                     <span>Pronóstico</span>
-                                                    <strong>
-                                                        <%= item.prediction_home_score %> - <%=
-                                                                item.prediction_away_score %>
-                                                    </strong>
+
+                                                    <div class="scoreboard-horizontal">
+
+                                                        <div class="team-left">
+                                                            <div class="team-name">
+                                                                <%= match.home_team %>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="score-center">
+                                                            <span class="score">
+                                                                <%= item.prediction_home_score %>
+                                                            </span>
+                                                            <span class="dash">-</span>
+                                                            <span class="score">
+                                                                <%= item.prediction_away_score %>
+                                                            </span>
+                                                        </div>
+
+                                                        <div class="team-right">
+                                                            <div class="team-name">
+                                                                <%= match.away_team %>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
                                                 </div>
 
                                                 <div>
                                                     <span>Resultado oficial</span>
-                                                    <strong>
-                                                        <% if (item.real_home_score===null ||
-                                                            item.real_away_score===null) { %>
-                                                            Pendiente
-                                                            <% } else { %>
-                                                                <%= item.real_home_score %> - <%= item.real_away_score
-                                                                        %>
-                                                                        <% } %>
-                                                    </strong>
+
+                                                    <% if(item.real_home_score===null || item.real_away_score===null){
+                                                        %>
+
+                                                        <strong>Pendiente</strong>
+
+                                                        <% }else{ %>
+
+                                                            <div class="scoreboard-horizontal official">
+
+                                                                <div class="team-left">
+                                                                    <div class="team-name">
+                                                                        <%= match.home_team %>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="score-center">
+                                                                    <span class="score">
+                                                                        <%= item.real_home_score %>
+                                                                    </span>
+                                                                    <span class="dash">-</span>
+                                                                    <span class="score">
+                                                                        <%= item.real_away_score %>
+                                                                    </span>
+                                                                </div>
+
+                                                                <div class="team-right">
+                                                                    <div class="team-name">
+                                                                        <%= match.away_team %>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+                                                            <% } %>
+
                                                 </div>
 
                                                 <div>
