@@ -47,7 +47,7 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 42px 42px;
   mask-image: linear-gradient(to bottom, black, transparent 70%);
 }
@@ -828,9 +828,9 @@ td strong {
   }
 }
 
-  .password-cell {
-    min-width: 220px;
-  }
+.password-cell {
+  min-width: 220px;
+}
 
 @media (max-width: 560px) {
   .container {
@@ -869,5 +869,123 @@ td strong {
 
   .details-list {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .table-wrap {
+    overflow-x: visible;
+  }
+
+  .public-predictions-table,
+  .admin-predictions-table {
+    display: block;
+    width: 100%;
+  }
+
+  .public-predictions-table thead,
+  .admin-predictions-table thead {
+    display: none;
+  }
+
+  .public-predictions-table tbody,
+  .public-predictions-table tr,
+  .public-predictions-table td,
+  .admin-predictions-table tbody,
+  .admin-predictions-table tr,
+  .admin-predictions-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .public-predictions-table tr,
+  .admin-predictions-table tr {
+    margin-bottom: 18px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .05);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, .18);
+  }
+
+  .public-predictions-table td,
+  .admin-predictions-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border: none;
+  }
+
+  .public-predictions-table td::before,
+  .admin-predictions-table td::before {
+    content: attr(data-label);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+}
+
+.community-predictions-list {
+  display: grid;
+  gap: 14px;
+}
+
+.community-prediction-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.community-prediction-player {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.community-prediction-player span,
+.community-prediction-grid span {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.community-prediction-player strong {
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
+.community-prediction-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.community-prediction-grid div {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(4, 14, 32, 0.5);
+}
+
+.community-prediction-grid strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 1.15rem;
+}
+
+@media (max-width: 560px) {
+  .community-prediction-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .community-prediction-card {
+    padding: 14px;
   }
 }

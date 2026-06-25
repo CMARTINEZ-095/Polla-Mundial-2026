@@ -1,19 +1,19 @@
 <%- include('partials/header') %>
 
-<div class="page-heading">
-  <div>
-    <p class="eyebrow">Consulta los pronósticos de la comunidad</p>
-    <h1>Pronósticos de participantes</h1>
-    <p class="muted">
-      Los pronósticos de cada partido se muestran únicamente cuando el encuentro ha comenzado.
-    </p>
-  </div>
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Consulta los pronósticos de la comunidad</p>
+            <h1>Pronósticos de participantes</h1>
+            <p class="muted">
+                Los pronósticos de cada partido se muestran únicamente cuando el encuentro ha comenzado.
+            </p>
+        </div>
 
-  <div class="actions-row">
-    <a class="button secondary" href="/predictions">Mis pronósticos</a>
-    <a class="button secondary" href="/leaderboard">Tabla</a>
-  </div>
-</div>
+        <div class="actions-row">
+            <a class="button secondary" href="/predictions">Mis pronósticos</a>
+            <a class="button secondary" href="/leaderboard">Tabla</a>
+        </div>
+    </div>
 
     <% visibleMatches.forEach(({ match, isVisible, predictions })=> { %>
         <section class="card table-card">
@@ -27,43 +27,48 @@
             </div>
 
             <% if (!isVisible) { %>
-                <p class="muted">Pronósticos ocultos hasta que inicie el partido.</p>
+                <p class="muted">🔒 Los pronósticos estarán disponibles cuando comience el partido.</p>
                 <% } else if (!predictions.length) { %>
                     <p class="muted">Nadie ha pronosticado este partido todavía.</p>
                     <% } else { %>
-                        <div class="table-wrap">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Participante</th>
-                                        <th>Pronóstico</th>
-                                        <th>Resultado</th>
-                                        <th>Puntos</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% predictions.forEach((item)=> { %>
-                                        <tr>
-                                            <td>
-                                                <%= item.user_name %>
-                                            </td>
-                                            <td>
+                        <div class="community-predictions-list">
+                            <% predictions.forEach((item)=> { %>
+                                <article class="community-prediction-card">
+                                    <div class="community-prediction-player">
+                                        <span>Participante</span>
+                                        <strong>
+                                            <%= item.user_name || 'Sin nombre' %>
+                                        </strong>
+                                    </div>
+
+                                    <div class="community-prediction-grid">
+                                        <div>
+                                            <span>Pronóstico</span>
+                                            <strong>
                                                 <%= item.prediction_home_score %> - <%= item.prediction_away_score %>
-                                            </td>
-                                            <td>
+                                            </strong>
+                                        </div>
+
+                                        <div>
+                                            <span>Resultado Oficial</span>
+                                            <strong>
                                                 <% if (item.real_home_score===null || item.real_away_score===null) { %>
                                                     Pendiente
                                                     <% } else { %>
                                                         <%= item.real_home_score %> - <%= item.real_away_score %>
                                                                 <% } %>
-                                            </td>
-                                            <td>
-                                                <%= item.points===null ? "Pendiente" : item.points %>
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                                </tbody>
-                            </table>
+                                            </strong>
+                                        </div>
+
+                                        <div>
+                                            <span>Puntos</span>
+                                            <strong>
+                                                <%= item.points===null ? 'Pendiente' : item.points %>
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </article>
+                                <% }) %>
                         </div>
                         <% } %>
         </section>
