@@ -24,13 +24,16 @@
     </section>
 
     <div class="community-accordion">
-        <% visibleMatches.forEach(({ match, isVisible, predictions })=> { %>
+        <% visibleMatches.forEach(({ match, isVisible, predictions })=> {
+            const exacts = predictions.filter((p) => Number(p.points) === 3).length;
+            const outcomes = predictions.filter((p) => Number(p.points) === 1).length;
+            const misses = predictions.filter((p) => Number(p.points) === 0).length;
+            %>
+
             <details class="community-match-card">
                 <summary class="community-match-summary">
                     <div class="community-header">
-
                         <div class="community-header-title">
-
                             <h2>
                                 <%= match.home_team %> vs <%= match.away_team %>
                             </h2>
@@ -39,60 +42,40 @@
                                 <%= helpers.formatDateTime(match.kickoff_at) %>
                             </p>
 
-                            <p class="community-count">
-
+                            <div class="community-match-count">
                                 <% if (!isVisible) { %>
-
-                                    🔒 Pronósticos ocultos
-
+                                    <span class="match-stat locked">🔒 Pronósticos ocultos</span>
                                     <% } else { %>
-
-                                        👥 <%= predictions.length %> participantes
-
-                                            <% } %>
-
-                            </p>
-
+                                        <span class="match-stat">👥 <%= predictions.length %> participantes</span>
+                                        <span class="match-stat exact">🟢 <%= exacts %> exactos</span>
+                                        <span class="match-stat good">🟡 <%= outcomes %> ganador/empate</span>
+                                        <span class="match-stat bad">🔴 <%= misses %> fallaron</span>
+                                        <% } %>
+                            </div>
                         </div>
 
                         <div class="community-status">
-
                             <% if (match.status==='finished' ) { %>
-
                                 <span class="status finished">🔴 Finalizado</span>
-
                                 <% } else if (match.status==='live' ) { %>
-
                                     <span class="status live">🟢 En vivo</span>
-
                                     <% } else { %>
-
                                         <span class="status scheduled">🕒 Pendiente</span>
-
                                         <% } %>
-
                         </div>
-
                     </div>
 
                     <div class="community-toggle">
-
                         <span class="toggle-open">Ver</span>
-
                         <span class="toggle-close">Ocultar</span>
-
                     </div>
                 </summary>
 
                 <div class="community-match-content">
                     <% if (!isVisible) { %>
-                        <p class="muted">
-                            🔒 Los pronósticos estarán disponibles cuando comience el partido.
-                        </p>
+                        <p class="muted">🔒 Los pronósticos estarán disponibles cuando comience el partido.</p>
                         <% } else if (!predictions.length) { %>
-                            <p class="muted">
-                                Nadie ha pronosticado este partido todavía.
-                            </p>
+                            <p class="muted">Nadie ha pronosticado este partido todavía.</p>
                             <% } else { %>
                                 <div class="community-predictions-list">
                                     <% predictions.forEach((item)=> {
