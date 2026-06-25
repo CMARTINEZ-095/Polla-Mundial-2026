@@ -3,7 +3,7 @@
     <div class="page-heading">
         <div>
             <p class="eyebrow">Consulta los pronósticos de la comunidad</p>
-            <h1>Pronósticos de participantes</h1>
+            <h1>Pronósticos</h1>
             <p class="muted">
                 Los pronósticos de cada partido se muestran únicamente cuando el encuentro ha comenzado.
             </p>
@@ -24,56 +24,91 @@
     </section>
 
     <div class="community-accordion">
-
-        <% visibleMatches.forEach(({ match, isVisible, predictions }, index)=> { %>
-
-            <details class="community-match-card" <%=index===0 ? 'open' : '' %>>
+        <% visibleMatches.forEach(({ match, isVisible, predictions })=> { %>
+            <details class="community-match-card">
                 <summary class="community-match-summary">
-                    <div>
-                        <h2>
-                            <%= match.home_team %> vs <%= match.away_team %>
-                        </h2>
-                        <p class="muted">
-                            <%= helpers.formatDateTime(match.kickoff_at) %>
-                        </p>
+                    <div class="community-header">
+
+                        <div class="community-header-title">
+
+                            <h2>
+                                <%= match.home_team %> vs <%= match.away_team %>
+                            </h2>
+
+                            <p class="muted">
+                                <%= helpers.formatDateTime(match.kickoff_at) %>
+                            </p>
+
+                            <p class="community-count">
+
+                                <% if (!isVisible) { %>
+
+                                    🔒 Pronósticos ocultos
+
+                                    <% } else { %>
+
+                                        👥 <%= predictions.length %> participantes
+
+                                            <% } %>
+
+                            </p>
+
+                        </div>
+
+                        <div class="community-status">
+
+                            <% if (match.status==='finished' ) { %>
+
+                                <span class="status finished">🔴 Finalizado</span>
+
+                                <% } else if (match.status==='live' ) { %>
+
+                                    <span class="status live">🟢 En vivo</span>
+
+                                    <% } else { %>
+
+                                        <span class="status scheduled">🕒 Pendiente</span>
+
+                                        <% } %>
+
+                        </div>
+
                     </div>
 
-                    <div class="community-match-count">
-                        <% if (!isVisible) { %>
-                            🔒 Oculto
-                            <% } else { %>
-                                👥 <%= predictions.length %> pronósticos
-                                    <% } %>
+                    <div class="community-toggle">
+
+                        <span class="toggle-open">Ver</span>
+
+                        <span class="toggle-close">Ocultar</span>
+
                     </div>
                 </summary>
 
                 <div class="community-match-content">
-
                     <% if (!isVisible) { %>
-
                         <p class="muted">
                             🔒 Los pronósticos estarán disponibles cuando comience el partido.
                         </p>
-
                         <% } else if (!predictions.length) { %>
-
                             <p class="muted">
                                 Nadie ha pronosticado este partido todavía.
                             </p>
-
                             <% } else { %>
-
                                 <div class="community-predictions-list">
-
                                     <% predictions.forEach((item)=> {
-                                        let pointClass = 'points-pending';
-                                        let pointText = 'Pendiente';
+                                        let pointClass = "points-pending";
+                                        let pointText = "Pendiente";
 
                                         if (item.points !== null) {
                                         pointText = `${item.points} puntos`;
-                                        if (Number(item.points) === 3) pointClass = 'points-exact';
-                                        else if (Number(item.points) === 1) pointClass = 'points-good';
-                                        else pointClass = 'points-zero';
+
+                                        if (Number(item.points) === 3) {
+                                        pointClass = "points-exact";
+                                        } else if (Number(item.points) === 1) {
+                                        pointClass = "points-good";
+                                        } else {
+                                        pointClass = "points-zero";
+                                        }
                                         }
                                         %>
 
@@ -82,7 +117,7 @@
                                             <div class="community-prediction-player">
                                                 <span>Participante</span>
                                                 <strong>
-                                                    <%= item.user_name || 'Sin nombre' %>
+                                                    <%= item.user_name || "Sin nombre" %>
                                                 </strong>
                                             </div>
 
@@ -116,48 +151,65 @@
                                                 </div>
                                             </div>
                                         </article>
-
                                         <% }) %>
-
                                 </div>
 
                                 <p class="muted community-no-results" style="display:none;">
                                     No se encontraron participantes con ese nombre en este partido.
                                 </p>
-
                                 <% } %>
-
                 </div>
             </details>
-
             <% }) %>
-
     </div>
 
     <script>
         const searchInput = document.getElementById("communitySearch");
 
+        document.querySelectorAll(".community-match-card").forEach((card) => {
+            card.addEventListener("toggle", () => {
+                if (card.open) {
+                    document.querySelectorAll(".community-match-card").forEach((otherCard) => {
+                        if (otherCard !== card) {
+                            otherCard.open = false;
+                        }
+                    });
+                }
+            });
+        });
+
         if (searchInput) {
             searchInput.addEventListener("input", () => {
                 const value = searchInput.value.trim().toLowerCase();
-                const cards = document.querySelectorAll(".community-prediction-card");
+                const matchCards = document.querySelectorAll(".community-match-card");
 
-                cards.forEach((card) => {
-                    const name = card.dataset.searchName || "";
-                    card.style.display = !value || name.includes(value) ? "" : "none";
-                });
+                matchCards.forEach((matchCard) => {
+                    const cards = matchCard.querySelectorAll(".community-prediction-card");
+                    let visibleCount = 0;
 
-                document.querySelectorAll(".community-match-card").forEach((matchCard) => {
-                    const visibleCards = matchCard.querySelectorAll(".community-prediction-card:not([style*='display: none'])");
-                    const allCards = matchCard.querySelectorAll(".community-prediction-card");
+                    cards.forEach((card) => {
+                        const name = card.dataset.searchName || "";
+                        const isVisible = !value || name.includes(value);
+
+                        card.style.display = isVisible ? "" : "none";
+
+                        if (isVisible) {
+                            visibleCount += 1;
+                        }
+                    });
+
                     const noResults = matchCard.querySelector(".community-no-results");
 
-                    if (noResults && allCards.length > 0) {
-                        noResults.style.display = visibleCards.length === 0 ? "" : "none";
+                    if (noResults && cards.length > 0) {
+                        noResults.style.display = value && visibleCount === 0 ? "" : "none";
                     }
 
-                    if (value && visibleCards.length > 0) {
+                    if (!value) {
+                        matchCard.open = false;
+                    } else if (visibleCount > 0) {
                         matchCard.open = true;
+                    } else {
+                        matchCard.open = false;
                     }
                 });
             });

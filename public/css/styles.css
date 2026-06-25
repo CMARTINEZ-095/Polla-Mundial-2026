@@ -1154,3 +1154,276 @@ td strong {
     padding: 14px;
   }
 }
+
+.community-search-card {
+  margin-bottom: 18px;
+}
+
+.community-accordion {
+  display: grid;
+  gap: 16px;
+}
+
+.community-match-card {
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(7, 21, 44, 0.88), rgba(7, 21, 44, 0.76));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.community-match-summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.community-match-summary::-webkit-details-marker {
+  display: none;
+}
+
+.community-match-summary h2 {
+  margin: 0 0 6px;
+}
+
+.community-match-summary::after {
+  content: "▼";
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.community-match-card[open] .community-match-summary::after {
+  content: "▲";
+}
+
+.community-match-count {
+  color: var(--accent);
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.community-match-content {
+  padding: 0 24px 24px;
+}
+
+.community-predictions-list {
+  display: grid;
+  gap: 14px;
+}
+
+.community-prediction-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.community-prediction-player {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.community-prediction-player span,
+.community-prediction-grid span {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.community-prediction-player strong {
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
+.community-prediction-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.community-prediction-grid div {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(4, 14, 32, 0.5);
+}
+
+.community-prediction-grid strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--text);
+  font-size: 1.15rem;
+}
+
+.community-points {
+  display: inline-flex !important;
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.95rem !important;
+}
+
+.points-exact {
+  color: #092414 !important;
+  background: var(--accent-2);
+}
+
+.points-good {
+  color: #07152c !important;
+  background: var(--accent);
+}
+
+.points-zero {
+  color: #fff !important;
+  background: rgba(255, 107, 107, 0.85);
+}
+
+.points-pending {
+  color: var(--muted) !important;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.community-no-results {
+  margin-top: 14px;
+}
+
+@media (max-width: 560px) {
+  .community-match-summary {
+    padding: 18px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .community-match-count {
+    white-space: normal;
+  }
+
+  .community-match-content {
+    padding: 0 18px 18px;
+  }
+
+  .community-prediction-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .community-prediction-card {
+    padding: 14px;
+  }
+}
+
+.community-header{
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+gap:20px;
+width:100%;
+}
+
+.community-header-title{
+flex:1;
+}
+
+.community-count{
+margin-top:8px;
+font-weight:700;
+color:var(--accent);
+}
+
+.community-status .status{
+padding:6px 12px;
+border-radius:999px;
+font-size:.82rem;
+font-weight:800;
+white-space:nowrap;
+}
+
+.status.finished{
+background:#ff6b6b22;
+color:#ff8d8d;
+}
+
+.status.live{
+background:#6bff9520;
+color:#6bff95;
+}
+
+.status.scheduled{
+background:#ffd54a22;
+color:#ffd54a;
+}
+
+.community-toggle{
+
+margin-top:16px;
+
+display:inline-flex;
+
+padding:10px 18px;
+
+border-radius:999px;
+
+background:rgba(255,255,255,.08);
+
+font-weight:700;
+
+color:white;
+
+transition:.25s;
+
+}
+
+.community-toggle:hover{
+
+background:var(--accent);
+
+color:#07152c;
+
+}
+
+.toggle-close{
+
+display:none;
+
+}
+
+.community-match-card[open] .toggle-open{
+
+display:none;
+
+}
+
+.community-match-card[open] .toggle-close{
+
+display:inline;
+
+}
+
+@media(max-width:700px){
+
+.community-header{
+
+flex-direction:column;
+
+}
+
+.community-status{
+
+margin-top:8px;
+
+}
+
+.community-toggle{
+
+width:100%;
+
+justify-content:center;
+
+}
+
+}
