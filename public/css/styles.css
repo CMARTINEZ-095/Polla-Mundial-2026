@@ -1692,3 +1692,43 @@ td strong {
     font-size:1.35rem !important;
     font-weight:900;
 }
+
+.scoreboard-horizontal .team-name {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  line-height: 1.15;
+  max-width: 100%;
+  word-break: normal;
+}
+
+@media (max-width: 600px) {
+  .scoreboard-horizontal {
+    grid-template-columns: 1fr;
+  }
+
+  .team-left,
+  .team-right {
+    width: 34%;
+    font-size: 0.72rem;
+    line-height: 1.1;
+  }
+
+  .scoreboard-horizontal .team-name {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.1;
+    font-size: 0.72rem;
+  }
+
+  .scoreboard-horizontal .score {
+    font-size: 1.45rem !important;
+    min-width: 24px;
+  }
+}
+
+.scoreboard-horizontal .team-name {
+  white-space: normal;
+  line-height: 1.15;
+}
