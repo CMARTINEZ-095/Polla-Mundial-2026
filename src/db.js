@@ -361,6 +361,28 @@ class JsonDatabase {
     }).sort(leaderboardSort);
   }
 
+  async listAllPredictionsDetailed() {
+  return this.data.predictions.map((prediction) => {
+    const user = this.data.users.find((u) => Number(u.id) === Number(prediction.user_id));
+    const match = this.data.matches.find((m) => Number(m.id) === Number(prediction.match_id));
+    return {
+      user_name: user?.name || "",
+      user_email: user?.email || "",
+      match_id: match ? Number(match.id) : null,
+      group_name: match?.group_name || "",
+      home_team: match?.home_team || "",
+      away_team: match?.away_team || "",
+      kickoff_at: match?.kickoff_at || "",
+      prediction_home_score: prediction.home_score,
+      prediction_away_score: prediction.away_score,
+      real_home_score: match?.home_score ?? null,
+      real_away_score: match?.away_score ?? null,
+      points: match ? pointsForPrediction(prediction, match) : null
+    };
+  }).sort((a, b) => new Date(a.kickoff_at) - new Date(b.kickoff_at) || a.user_name.localeCompare(b.user_name, "es"));
+
+  
+}
   async getStatsSummary() {
     const players = this.data.users.filter((user) => user.role !== "admin").length;
     const totalMatches = this.data.matches.length;
@@ -686,7 +708,38 @@ class PgDatabase {
       total_predictions: Number(row.total_predictions)
     }));
   }
+  
+  async listAllPredictionsDetailed() {
+  const result = await this.pool.query(`
+    SELECT
+      u.name AS user_name,
+      u.email AS user_email,
+      m.id AS match_id,
+      m.group_name,
+      m.home_team,
+      m.away_team,
+      m.kickoff_at,
+      p.home_score AS prediction_home_score,
+      p.away_score AS prediction_away_score,
+      m.home_score AS real_home_score,
+      m.away_score AS real_away_score,
+      CASE
+        WHEN m.home_score IS NULL OR m.away_score IS NULL THEN NULL
+        WHEN p.home_score = m.home_score AND p.away_score = m.away_score THEN 3
+        WHEN
+          (CASE WHEN p.home_score > p.away_score THEN 'H' WHEN p.home_score < p.away_score THEN 'A' ELSE 'D' END) =
+          (CASE WHEN m.home_score > m.away_score THEN 'H' WHEN m.home_score < m.away_score THEN 'A' ELSE 'D' END)
+        THEN 1
+        ELSE 0
+      END AS points
+    FROM predictions p
+    JOIN users u ON u.id = p.user_id
+    JOIN matches m ON m.id = p.match_id
+    ORDER BY m.kickoff_at ASC, u.name ASC
+  `);
 
+  return result.rows;
+}
   async getStatsSummary() {
     const result = await this.pool.query(`
       SELECT

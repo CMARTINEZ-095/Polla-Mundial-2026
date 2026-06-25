@@ -15,16 +15,25 @@
       </span>
       <span><%= config.appName %></span>
     </a>
+
     <button class="nav-toggle" type="button" aria-label="Abrir menu" onclick="document.body.classList.toggle('nav-open')">☰</button>
+
     <nav class="main-nav">
       <% if (!currentUser || currentUser.role !== 'admin') { %>
         <a href="/predictions">Mis pronósticos</a>
+        <% if (currentUser) { %>
+          <a href="/public-predictions">Pronósticos</a>
+        <% } %>
       <% } %>
+
       <a href="/leaderboard">Tabla</a>
       <a href="/rules">Reglas</a>
+
       <% if (currentUser && currentUser.role === 'admin') { %>
         <a href="/admin">Admin</a>
+        <a href="/admin/predictions">Consultar pronósticos</a>
       <% } %>
+
       <% if (currentUser) { %>
         <a href="/account">Mi cuenta</a>
         <form class="logout-form" action="/logout" method="post">
@@ -38,6 +47,7 @@
     </nav>
   </div>
 </header>
+
 <main class="container page">
   <% if (flash) { %>
     <div class="alert alert-<%= flash.type %>"><%= flash.message %></div>

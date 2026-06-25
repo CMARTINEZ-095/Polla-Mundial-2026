@@ -511,6 +511,65 @@ app.post("/admin/users/:id/password", requireAdmin, async (req, res, next) => {
   }
 });
 
+app.get("/public-predictions", requireAuth, async (req, res, next) => {
+  try {
+    const [matches, predictions] = await Promise.all([
+      db.listMatches(),
+      db.listAllPredictionsDetailed()
+    ]);
+
+    const now = new Date();
+
+    const visibleMatches = matches.map((match) => {
+      const locked = isMatchLocked(match, now);
+
+      return {
+        match,
+        isVisible: locked,
+        predictions: locked
+          ? predictions.filter((prediction) => Number(prediction.match_id) === Number(match.id))
+          : []
+      };
+    });
+
+    res.render("public-predictions", {
+      title: "Pronósticos de participantes",
+      visibleMatches
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/admin/predictions", requireAdmin, async (req, res, next) => {
+  try {
+    const predictions = await db.listAllPredictionsDetailed();
+    const q = cleanText(req.query.q || "").toLowerCase();
+
+    const filtered = q
+      ? predictions.filter((item) => {
+          const text = [
+            item.user_name,
+            item.user_email,
+            item.group_name,
+            item.home_team,
+            item.away_team
+          ].join(" ").toLowerCase();
+
+          return text.includes(q);
+        })
+      : predictions;
+
+    res.render("admin-predictions", {
+      title: "Todos los pronósticos",
+      predictions: filtered,
+      q
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.use((req, res) => {
   res.status(404).render("404", { title: "No encontrado" });
 });
