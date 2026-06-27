@@ -1,5 +1,4 @@
 <%- include('partials/header') %>
-
   <div class="page-heading">
     <div>
       <p class="eyebrow">Clasificación</p>
@@ -9,9 +8,14 @@
       </p>
     </div>
 
-    <% if (currentUser && currentUser.role==='admin' ) { %>
-      <a class="button secondary" href="/leaderboard.csv">Descargar CSV</a>
-      <% } %>
+    <div class="actions-row">
+      <a class="button secondary" href="/predictions">⚽ Mis pronósticos</a>
+      <a class="button secondary" href="/public-predictions">👥 Pronósticos de la comunidad</a>
+
+      <% if (currentUser && currentUser.role==='admin' ) { %>
+        <a class="button secondary" href="/leaderboard.csv">Descargar CSV</a>
+        <% } %>
+    </div>
   </div>
 
   <div class="card table-card leaderboard-table-card-v2">

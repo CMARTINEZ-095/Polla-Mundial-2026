@@ -3,25 +3,17 @@
     <div class="page-heading">
         <div>
             <p class="eyebrow">Consulta los pronósticos de la comunidad</p>
-            <h1>Pronósticos</h1>
+            <h1>Pronósticos de la comunidad</h1>
             <p class="muted">
                 Los pronósticos de cada partido se muestran únicamente cuando el encuentro ha comenzado.
             </p>
         </div>
 
         <div class="actions-row">
-            <a class="button secondary" href="/predictions">Mis pronósticos</a>
-            <a class="button secondary" href="/leaderboard">Tabla</a>
+            <a class="button secondary" href="/leaderboard">🏆 Tabla</a>
+            <a class="button secondary" href="/predictions">👥 Mis pronósticos</a>
         </div>
     </div>
-
-    <section class="card community-search-card">
-        <label>
-            Buscar participante
-            <input type="text" id="communitySearch" placeholder="Escribe un nombre, por ejemplo: Carlos"
-                autocomplete="off">
-        </label>
-    </section>
 
     <div class="community-accordion">
         <% visibleMatches.forEach(({ match, isVisible, predictions })=> {
@@ -72,7 +64,7 @@
                 </summary>
 
                 <div class="community-match-content">
-                    
+
                     <% if (!isVisible) { %>
                         <p class="muted">🔒 Los pronósticos estarán disponibles cuando comience el partido.</p>
                         <% } else if (!predictions.length) { %>
@@ -163,7 +155,6 @@
     </div>
 
     <script>
-        const searchInput = document.getElementById("communitySearch");
 
         document.querySelectorAll(".community-match-card").forEach((card) => {
             card.addEventListener("toggle", () => {
@@ -185,42 +176,6 @@
             });
         });
 
-        if (searchInput) {
-            searchInput.addEventListener("input", () => {
-                const value = searchInput.value.trim().toLowerCase();
-                const matchCards = document.querySelectorAll(".community-match-card");
-
-                matchCards.forEach((matchCard) => {
-                    const cards = matchCard.querySelectorAll(".community-prediction-card");
-                    let visibleCount = 0;
-
-                    cards.forEach((card) => {
-                        const name = card.dataset.searchName || "";
-                        const isVisible = !value || name.includes(value);
-
-                        card.style.display = isVisible ? "" : "none";
-
-                        if (isVisible) {
-                            visibleCount += 1;
-                        }
-                    });
-
-                    const noResults = matchCard.querySelector(".community-no-results");
-
-                    if (noResults && cards.length > 0) {
-                        noResults.style.display = value && visibleCount === 0 ? "" : "none";
-                    }
-
-                    if (!value) {
-                        matchCard.open = false;
-                    } else if (visibleCount > 0) {
-                        matchCard.open = true;
-                    } else {
-                        matchCard.open = false;
-                    }
-                });
-            });
-        }
     </script>
 
     <%- include('partials/footer') %>

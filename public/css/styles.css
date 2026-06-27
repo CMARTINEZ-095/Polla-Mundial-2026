@@ -1950,10 +1950,10 @@ td strong {
   background: rgba(34, 197, 94, 0.12);
 }
 
-.official-result-card strong {
-  color: #86efac;
-  font-size: 18px;
-  font-weight: 900;
+.official-result-card strong{
+
+    font-size:20px;
+    font-weight:800;
 }
 
 .info-title {
@@ -1963,8 +1963,15 @@ td strong {
   text-transform: uppercase;
 }
 
-.pending-text {
-  color: #cbd5e1 !important;
+.pending-text{
+
+    font-size:15px !important;
+
+    font-weight:700;
+
+    color:#E5E7EB;
+
+    letter-spacing:.3px;
 }
 
 .points-badge {
@@ -2823,4 +2830,341 @@ MEDALLAS
 
     font-weight:800;
     font-size:14px;
+}
+
+@media (max-width: 768px) {
+  .match-card,
+  .day-block,
+  .card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+
+  body {
+    background-attachment: scroll !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll !important;
+  }
+
+  .card,
+  .match-card,
+  .community-match-card,
+  .community-prediction-card,
+  .day-block {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+
+  .community-match-card,
+  .match-card,
+  .community-prediction-card {
+    will-change: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll !important;
+  }
+
+  .card,
+  .match-card,
+  .community-match-card,
+  .community-prediction-card,
+  .day-block {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+
+  
+
+  .page-heading::before,
+  .page-heading::after {
+    opacity: 0.25 !important;
+  }
+}
+
+/* ==============================
+   OPTIMIZACIÓN MÓVIL SIN TAPAR FONDO
+============================== */
+
+@media (max-width: 768px) {
+
+  body {
+    background-attachment: scroll !important;
+  }
+
+  .page-heading {
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .match-card,
+  .community-match-card,
+  .community-prediction-card,
+  .day-block {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+
+  .match-card,
+  .community-match-card,
+  .community-prediction-card {
+    background: rgba(3, 15, 35, 0.82) !important;
+    border: 1px solid rgba(255,255,255,.10);
+  }
+
+  .official-result-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* ==============================
+   OPTIMIZACIÓN MÓVIL SIN DAÑAR FONDO
+============================== */
+
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll !important;
+  }
+
+  .match-card,
+  .community-match-card,
+  .community-prediction-card,
+  .day-block {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+
+  .match-card,
+  .community-match-card,
+  .community-prediction-card {
+    background: rgba(3, 15, 35, 0.82) !important;
+    border: 1px solid rgba(255,255,255,.10);
+  }
+
+  .official-result-card,
+  .points-result-card,
+  .public-prediction-box {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* ==================================
+   QUITAR FONDO GRIS DEL ENCABEZADO
+   Mis pronósticos y Pronósticos
+================================== */
+
+@media (max-width: 768px) {
+
+  .page-heading {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+}
+
+@media (max-width: 768px) {
+  body::before {
+    display: none !important;
+  }
+
+  main.page,
+  .container.page,
+  .page-heading {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll !important;
+  }
+
+  .match-card,
+  .community-match-card,
+  .community-prediction-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    background-size: auto 100vh !important;
+    background-position: center top !important;
+    background-repeat: no-repeat !important;
+    background-attachment: scroll !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    background-color: #07152c !important;
+    background-size: auto 100vh !important;
+    background-position: center top !important;
+    background-repeat: repeat-y !important;
+    background-attachment: scroll !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    background-color: #07152c !important;
+    background-size: auto 100vh !important;
+    background-position: center top !important;
+    background-repeat: repeat-y !important;
+    background-attachment: scroll !important;
+  }
+}
+
+/* ==============================
+   FONDO BANDERA COLOMBIA
+============================== */
+
+body {
+  background:
+    linear-gradient(rgba(3, 8, 20, .55), rgba(3, 8, 20, .55)),
+    url("/images/colombia-flag.webp") center center / cover no-repeat fixed !important;
+
+  background-color: #07152c !important;
+}
+
+@media (max-width: 768px) {
+  body {
+    background:
+      linear-gradient(rgba(3, 8, 20, .45), rgba(3, 8, 20, .55)),
+      url("/images/colombia-flag.webp") center top / cover no-repeat scroll !important;
+
+    background-color: #07152c !important;
+  }
+}
+
+@media (max-width:768px){
+
+    body{
+        background-size: contain !important;
+        background-repeat: no-repeat !important;
+        background-position: center top !important;
+        background-color:#07152c;
+    }
+
+}
+
+@media (max-width:768px){
+
+    body{
+
+        background-size:115% auto !important;
+
+        background-position:center top !important;
+
+    }
+
+}
+
+/* ==============================
+   FONDO BANDERA COLOMBIA
+============================== */
+
+body {
+  background:
+    linear-gradient(rgba(3, 8, 20, .48), rgba(3, 8, 20, .58)),
+    url("/images/colombia-flag.webp") center top / 100% auto repeat-y scroll !important;
+
+  background-color: #07152c !important;
+}
+
+@media (max-width: 768px) {
+  body {
+    background:
+      linear-gradient(rgba(3, 8, 20, .42), rgba(3, 8, 20, .55)),
+      url("/images/colombia-flag.webp") center top / 100% auto repeat-y scroll !important;
+
+    background-color: #07152c !important;
+  }
+}
+
+.actions-row .button.secondary{
+
+    background: rgba(7,21,44,.78);
+
+    border:1px solid rgba(255,255,255,.10);
+
+    color:#fff;
+
+    backdrop-filter: blur(10px);
+
+    -webkit-backdrop-filter: blur(10px);
+
+    transition:.25s;
+}
+
+.actions-row .button.secondary:hover{
+
+    background:#0E2A52;
+
+    border-color:#FFD43B;
+
+}
+
+/* ==============================
+   TOP 3 VISIBLE EN CELULAR
+============================== */
+
+@media (max-width: 768px) {
+
+  .leaderboard-table tbody tr:nth-child(1),
+  .leaderboard-compact-table tbody tr:nth-child(1) {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 210, 63, .22),
+      rgba(255, 210, 63, .08)
+    ) !important;
+  }
+
+  .leaderboard-table tbody tr:nth-child(2),
+  .leaderboard-compact-table tbody tr:nth-child(2) {
+    background: linear-gradient(
+      90deg,
+      rgba(203, 213, 225, .22),
+      rgba(203, 213, 225, .08)
+    ) !important;
+  }
+
+  .leaderboard-table tbody tr:nth-child(3),
+  .leaderboard-compact-table tbody tr:nth-child(3) {
+    background: linear-gradient(
+      90deg,
+      rgba(249, 115, 22, .24),
+      rgba(249, 115, 22, .08)
+    ) !important;
+  }
+
+}
+
+.eyebrow{
+    color:#FFD43B;
+    text-shadow:
+        0 1px 3px rgba(0,0,0,.9);
 }
