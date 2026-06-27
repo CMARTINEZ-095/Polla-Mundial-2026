@@ -16,51 +16,94 @@
 <% groups.forEach((group) => { %>
   <section class="day-block">
     <h2><%= group.label %></h2>
+
     <div class="match-list">
-      <% group.items.forEach((item) => { const match = item.match; const prediction = item.prediction; %>
+      <% group.items.forEach((item) => {
+        const match = item.match;
+        const prediction = item.prediction;
+      %>
+
         <article class="match-card <%= item.isLocked ? 'locked' : '' %>">
+
           <div class="match-meta">
             <span class="pill"><%= match.group_name || 'Partido' %></span>
             <span><%= helpers.formatTime(match.kickoff_at) %></span>
-            <% if (item.isLocked) { %><span class="status closed">Cerrado</span><% } else { %><span class="status open">Abierto</span><% } %>
+
+            <% if (item.isLocked) { %>
+              <span class="status closed">Cerrado</span>
+            <% } else { %>
+              <span class="status open">Abierto</span>
+            <% } %>
           </div>
-          <div class="teams-line">
-            <strong><%= match.home_team %></strong>
-            <span>vs</span>
-            <strong><%= match.away_team %></strong>
-          </div>
-          <% if (match.home_score !== null && match.away_score !== null) { %>
-            <p class="result-line">
-              <span class="result-label">Resultado oficial</span>
-              <strong class="result-score"><%= helpers.matchResultLabel(match) %></strong>
-            </p>
-          <% } %>
-          <form action="/predictions/<%= match.id %>" method="post" class="score-form">
+
+          <form action="/predictions/<%= match.id %>" method="post" class="score-form horizontal-form">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <label>
-              <span><%= match.home_team %></span>
-              <input type="number" min="0" max="30" name="home_score" value="<%= prediction ? prediction.home_score : '' %>" <%= item.isLocked ? 'disabled' : 'required' %>>
-            </label>
-            <span class="dash">-</span>
-            <label>
-              <span><%= match.away_team %></span>
-              <input type="number" min="0" max="30" name="away_score" value="<%= prediction ? prediction.away_score : '' %>" <%= item.isLocked ? 'disabled' : 'required' %>>
-            </label>
+
+            <span class="info-title my-prediction-title">Pronóstico</span>
+
+            <div class="horizontal-score-row">
+              <span class="team-horizontal-name"><%= match.home_team %></span>
+
+              <input
+                class="score-input-horizontal"
+                type="number"
+                min="0"
+                max="30"
+                name="home_score"
+                value="<%= prediction ? prediction.home_score : '' %>"
+                <%= item.isLocked ? 'disabled' : 'required' %>
+              >
+
+              <span class="horizontal-dash">-</span>
+
+              <input
+                class="score-input-horizontal"
+                type="number"
+                min="0"
+                max="30"
+                name="away_score"
+                value="<%= prediction ? prediction.away_score : '' %>"
+                <%= item.isLocked ? 'disabled' : 'required' %>
+              >
+
+              <span class="team-horizontal-name"><%= match.away_team %></span>
+            </div>
+
             <% if (!item.isLocked) { %>
-              <button class="button primary small" type="submit"><%= prediction ? 'Actualizar' : 'Guardar' %></button>
+              <button class="button primary small horizontal-btn" type="submit">
+                <%= prediction ? 'Actualizar' : 'Guardar' %>
+              </button>
             <% } %>
           </form>
-          <div class="prediction-summary">
-            <% if (prediction) { %>
-              <span>Tu pronóstico: <strong><%= prediction.home_score %> - <%= prediction.away_score %></strong></span>
-              <% if (item.points !== null) { %>
-                <span class="points <%= item.points === 3 ? 'win' : 'lose' %>"><%= item.points %> puntos</span>
+
+          <div class="match-extra-info">
+
+            <div class="official-result-card">
+              <span class="info-title">Resultado oficial</span>
+
+              <% if (match.home_score !== null && match.away_score !== null) { %>
+                <strong><%= helpers.matchResultLabel(match) %></strong>
+              <% } else { %>
+                <strong class="pending-text">Pendiente</strong>
               <% } %>
-            <% } else { %>
-              <span class="muted">Aún no has pronosticado este partido.</span>
-            <% } %>
+            </div>
+
+            <div class="points-result-card">
+              <span class="info-title">Puntos obtenidos</span>
+
+              <% if (prediction && item.points !== null) { %>
+                <span class="points-badge points-<%= item.points %>">
+                  <%= item.points %>
+                </span>
+              <% } else { %>
+                <span class="points-badge pending">-</span>
+              <% } %>
+            </div>
+
           </div>
+
         </article>
+
       <% }) %>
     </div>
   </section>

@@ -72,127 +72,93 @@
                 </summary>
 
                 <div class="community-match-content">
+                    
                     <% if (!isVisible) { %>
                         <p class="muted">🔒 Los pronósticos estarán disponibles cuando comience el partido.</p>
                         <% } else if (!predictions.length) { %>
                             <p class="muted">Nadie ha pronosticado este partido todavía.</p>
                             <% } else { %>
+
                                 <div class="community-predictions-list">
-                                    <% predictions.forEach((item)=> {
-                                        let pointClass = "points-pending";
-                                        let pointText = "Pendiente";
 
-                                        if (item.points !== null) {
-                                        pointText = `${item.points} puntos`;
+                                    <% predictions.forEach((item)=> { %>
 
-                                        if (Number(item.points) === 3) {
-                                        pointClass = "points-exact";
-                                        } else if (Number(item.points) === 1) {
-                                        pointClass = "points-good";
-                                        } else {
-                                        pointClass = "points-zero";
-                                        }
-                                        }
-                                        %>
-
-                                        <article class="community-prediction-card"
+                                        <article class="community-prediction-card public-style-card"
                                             data-search-name="<%= String(item.user_name || '').toLowerCase() %>">
-                                            <div class="community-prediction-player">
+
+                                            <div class="public-player-name">
                                                 <span>Participante</span>
                                                 <strong>
                                                     <%= item.user_name || "Sin nombre" %>
                                                 </strong>
                                             </div>
 
-                                            <div class="community-prediction-grid">
-                                                <div>
-                                                    <span>Pronóstico</span>
+                                            <div class="public-prediction-box">
+                                                <span class="info-title public-box-title">Pronóstico</span>
 
-                                                    <div class="scoreboard-horizontal">
+                                                <div class="public-score-row">
+                                                    <span class="public-team-name">
+                                                        <%= match.home_team %>
+                                                    </span>
 
-                                                        <div class="team-left">
-                                                            <div class="team-name">
-                                                                <%= match.home_team %>
-                                                            </div>
-                                                        </div>
+                                                    <span class="public-score-box">
+                                                        <%= item.prediction_home_score %>
+                                                    </span>
 
-                                                        <div class="score-center">
-                                                            <span class="score">
-                                                                <%= item.prediction_home_score %>
-                                                            </span>
-                                                            <span class="dash">-</span>
-                                                            <span class="score">
-                                                                <%= item.prediction_away_score %>
-                                                            </span>
-                                                        </div>
+                                                    <span class="public-dash">-</span>
 
-                                                        <div class="team-right">
-                                                            <div class="team-name">
-                                                                <%= match.away_team %>
-                                                            </div>
-                                                        </div>
+                                                    <span class="public-score-box">
+                                                        <%= item.prediction_away_score %>
+                                                    </span>
 
-                                                    </div>
-
-                                                </div>
-
-                                                <div>
-                                                    <span>Resultado oficial</span>
-
-                                                    <% if(item.real_home_score===null || item.real_away_score===null){
-                                                        %>
-
-                                                        <strong>Pendiente</strong>
-
-                                                        <% }else{ %>
-
-                                                            <div class="scoreboard-horizontal official">
-
-                                                                <div class="team-left">
-                                                                    <div class="team-name">
-                                                                        <%= match.home_team %>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="score-center">
-                                                                    <span class="score">
-                                                                        <%= item.real_home_score %>
-                                                                    </span>
-                                                                    <span class="dash">-</span>
-                                                                    <span class="score">
-                                                                        <%= item.real_away_score %>
-                                                                    </span>
-                                                                </div>
-
-                                                                <div class="team-right">
-                                                                    <div class="team-name">
-                                                                        <%= match.away_team %>
-                                                                    </div>
-                                                                </div>
-
-                                                            </div>
-
-                                                            <% } %>
-
-                                                </div>
-
-                                                <div>
-                                                    <span>Puntos</span>
-                                                    <strong class="community-points <%= pointClass %>">
-                                                        <%= pointText %>
-                                                    </strong>
+                                                    <span class="public-team-name">
+                                                        <%= match.away_team %>
+                                                    </span>
                                                 </div>
                                             </div>
+
+                                            <div class="match-extra-info public-extra-info">
+
+                                                <div class="official-result-card">
+                                                    <span class="info-title">Resultado oficial</span>
+
+                                                    <% if (item.real_home_score===null || item.real_away_score===null) {
+                                                        %>
+                                                        <strong class="pending-text">Pendiente</strong>
+                                                        <% } else { %>
+                                                            <strong>
+                                                                <%= item.real_home_score %> - <%= item.real_away_score
+                                                                        %>
+                                                            </strong>
+                                                            <% } %>
+                                                </div>
+
+                                                <div class="points-result-card">
+                                                    <span class="info-title">Puntos obtenidos</span>
+
+                                                    <% if (item.points===null) { %>
+                                                        <span class="points-badge pending">-</span>
+                                                        <% } else { %>
+                                                            <span class="points-badge points-<%= item.points %>">
+                                                                <%= item.points %>
+                                                            </span>
+                                                            <% } %>
+                                                </div>
+
+                                            </div>
                                         </article>
+
                                         <% }) %>
                                 </div>
 
                                 <p class="muted community-no-results" style="display:none;">
                                     No se encontraron participantes con ese nombre en este partido.
                                 </p>
+
                                 <% } %>
                 </div>
             </details>
+
             <% }) %>
     </div>
 

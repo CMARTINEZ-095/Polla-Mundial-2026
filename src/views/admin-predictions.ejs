@@ -6,6 +6,7 @@
             <h1>Todos los pronósticos</h1>
             <p class="muted">Busca por participante, correo, grupo o partido.</p>
         </div>
+
         <div class="actions-row">
             <a class="button secondary" href="/admin">Volver al admin</a>
         </div>
@@ -17,12 +18,13 @@
                 Buscar
                 <input type="text" name="q" value="<%= q %>" placeholder="Ej: Brasil, Carlos, Grupo C">
             </label>
+
             <button class="button primary" type="submit">Buscar</button>
             <a class="button secondary" href="/admin/predictions">Limpiar</a>
         </form>
     </section>
 
-    <section class="card table-card">
+    <section class="card table-card admin-predictions-card">
         <div class="section-title">
             <h2>Pronósticos encontrados</h2>
             <span class="muted">
@@ -30,8 +32,8 @@
             </span>
         </div>
 
-        <div class="table-wrap">
-            <table>
+        <div class="table-wrap admin-predictions-table-wrap">
+            <table class="admin-predictions-table">
                 <thead>
                     <tr>
                         <th>Participante</th>
@@ -43,38 +45,91 @@
                         <th>Puntos</th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    <% predictions.forEach((item)=> { %>
-                        <tr>
-                            <td>
-                                <%= item.user_name %>
-                            </td>
-                            <td>
-                                <%= item.user_email %>
-                            </td>
-                            <td>
-                                <%= item.group_name %>
-                            </td>
-                            <td><strong>
-                                    <%= item.home_team %>
-                                </strong> vs <strong>
-                                    <%= item.away_team %>
-                                </strong></td>
-                            <td>
-                                <%= item.prediction_home_score %> - <%= item.prediction_away_score %>
-                            </td>
-                            <td>
-                                <% if (item.real_home_score===null || item.real_away_score===null) { %>
-                                    Pendiente
-                                    <% } else { %>
-                                        <%= item.real_home_score %> - <%= item.real_away_score %>
-                                                <% } %>
-                            </td>
-                            <td>
-                                <%= item.points===null ? "Pendiente" : item.points %>
-                            </td>
-                        </tr>
-                        <% }) %>
+                    <% const colorClasses=[ 'match-color-1' , 'match-color-2' , 'match-color-3' , 'match-color-4'
+                        , 'match-color-5' , 'match-color-6' , 'match-color-7' , 'match-color-8' ]; const
+                        matchColorMap={}; let colorIndex=0; %>
+
+                        <% predictions.forEach((item)=> {
+                            const matchKey = `${item.group_name}-${item.home_team}-${item.away_team}`;
+
+                            if (!matchColorMap[matchKey]) {
+                            matchColorMap[matchKey] = colorClasses[colorIndex % colorClasses.length];
+                            colorIndex++;
+                            }
+
+                            const rowColorClass = matchColorMap[matchKey];
+
+                            let pointClass = 'admin-points-pending';
+                            let pointText = 'Pendiente';
+
+                            if (item.points !== null) {
+                            pointText = item.points;
+
+                            if (Number(item.points) === 3) {
+                            pointClass = 'admin-points-3';
+                            } else if (Number(item.points) === 1) {
+                            pointClass = 'admin-points-1';
+                            } else {
+                            pointClass = 'admin-points-0';
+                            }
+                            }
+                            %>
+
+                            <tr class="admin-prediction-row <%= rowColorClass %>">
+                                <td>
+                                    <strong class="admin-user-name">
+                                        <%= item.user_name %>
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    <span class="admin-user-email">
+                                        <%= item.user_email %>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="admin-group-badge">
+                                        <%= item.group_name %>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        <%= item.home_team %>
+                                    </strong>
+                                    <span class="admin-vs">vs</span>
+                                    <strong>
+                                        <%= item.away_team %>
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    <span class="admin-score-pill">
+                                        <%= item.prediction_home_score %> - <%= item.prediction_away_score %>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <% if (item.real_home_score===null || item.real_away_score===null) { %>
+                                        <span class="admin-result-pending">Pendiente</span>
+                                        <% } else { %>
+                                            <span class="admin-result-score">
+                                                <%= item.real_home_score %> - <%= item.real_away_score %>
+                                            </span>
+                                            <% } %>
+                                </td>
+
+                                <td>
+                                    <span class="admin-points-badge <%= pointClass %>">
+                                        <%= pointText %>
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <% }) %>
                 </tbody>
             </table>
         </div>
