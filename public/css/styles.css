@@ -2728,3 +2728,59 @@ td strong {
     font-size: 22px;
   }
 }
+
+/*==========================
+PUNTOS (amarillo)
+==========================*/
+
+.leaderboard-compact-table tbody td:nth-child(3){
+
+    color:#FFD23F;
+    font-size:28px;
+    font-weight:900;
+}
+
+/*==========================
+RESTO DE COLUMNAS
+==========================*/
+
+.leaderboard-compact-table tbody td:nth-child(4),
+.leaderboard-compact-table tbody td:nth-child(5),
+.leaderboard-compact-table tbody td:nth-child(6),
+.leaderboard-compact-table tbody td:nth-child(7){
+
+    color:#FFFFFF;
+    font-weight:700;
+}
+
+/*==========================
+NOMBRE
+==========================*/
+
+.leader-name-compact{
+
+    color:#FFFFFF;
+    font-size:17px;
+    font-weight:900;
+}
+
+/*==========================
+MEDALLAS
+==========================*/
+
+.leaderboard-compact-table tbody td:first-child{
+
+    font-size:22px;
+}
+
+/* Puntos amarillos */
+
+.leader-points{
+    color:#FFD23F !important;
+}
+
+.leader-points strong{
+    color:#FFD23F !important;
+    font-size:inherit;
+    font-weight:800;
+}
