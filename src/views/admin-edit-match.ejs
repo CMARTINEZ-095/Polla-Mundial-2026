@@ -1,63 +1,99 @@
 <%- include('partials/header') %>
 
-<div class="page-heading">
-  <div>
-    <p class="eyebrow">Editar partido</p>
-    <h1><%= match.home_team %> vs <%= match.away_team %></h1>
-    <p class="muted">Al guardar resultado, la tabla se recalcula automáticamente.</p>
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">Editar partido</p>
+      <h1>
+        <%= match.home_team %> vs <%= match.away_team %>
+      </h1>
+      <p class="muted">Al guardar resultado, la tabla se recalcula automáticamente.</p>
+    </div>
+    <a class="button secondary" href="/admin">Volver al admin</a>
   </div>
-  <a class="button secondary" href="/admin">Volver al admin</a>
-</div>
 
-<section class="card">
-  <form action="/admin/matches/<%= match.id %>" method="post" class="admin-form">
-    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-    <label>
-      Grupo
-      <input type="text" name="group_name" value="<%= match.group_name || '' %>">
-    </label>
-    <label>
-      Equipo local
-      <input type="text" name="home_team" required value="<%= match.home_team %>">
-    </label>
-    <label>
-      Equipo visitante
-      <input type="text" name="away_team" required value="<%= match.away_team %>">
-    </label>
-    <label>
-      Fecha/hora Colombia
-      <input type="datetime-local" name="kickoff_at" required value="<%= helpers.toBogotaDateTimeLocal(match.kickoff_at) %>">
-    </label>
-    <label>
-      Estadio / sede
-      <input type="text" name="venue" value="<%= match.venue || '' %>">
-    </label>
-    <label>
-      Goles local
-      <input type="number" min="0" max="30" name="home_score" value="<%= match.home_score === null ? '' : match.home_score %>">
-    </label>
-    <label>
-      Goles visitante
-      <input type="number" min="0" max="30" name="away_score" value="<%= match.away_score === null ? '' : match.away_score %>">
-    </label>
-    <label>
-      Estado
-      <select name="status">
-        <option value="scheduled" <%= match.status !== 'finished' ? 'selected' : '' %>>Programado</option>
-        <option value="finished" <%= match.status === 'finished' ? 'selected' : '' %>>Finalizado</option>
-      </select>
-    </label>
-    <button class="button primary" type="submit">Guardar cambios</button>
-  </form>
-</section>
+  <section class="card">
+    <form action="/admin/matches/<%= match.id %>" method="post" class="admin-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label>
+        Grupo
+        <input type="text" name="group_name" value="<%= match.group_name || '' %>">
+      </label>
+      <label>
+        Equipo local
+        <input type="text" name="home_team" required value="<%= match.home_team %>">
+      </label>
+      <label>
+        Equipo visitante
+        <input type="text" name="away_team" required value="<%= match.away_team %>">
+      </label>
+      <label>
+        Fecha/hora Colombia
+        <input type="datetime-local" name="kickoff_at" required
+          value="<%= helpers.toBogotaDateTimeLocal(match.kickoff_at) %>">
+      </label>
+      <label>
+        Estadio / sede
+        <input type="text" name="venue" value="<%= match.venue || '' %>">
+      </label>
+      <label>
+        Goles local
+        <input type="number" min="0" max="30" name="home_score"
+          value="<%= match.home_score === null ? '' : match.home_score %>">
+      </label>
+      <label>
+        Goles visitante
+        <input type="number" min="0" max="30" name="away_score"
+          value="<%= match.away_score === null ? '' : match.away_score %>">
+      </label>
+      <label>
+        Estado
+        <select name="status">
+          <option value="scheduled" <%=match.status !=='finished' ? 'selected' : '' %>>Programado</option>
+          <option value="finished" <%=match.status==='finished' ? 'selected' : '' %>>Finalizado</option>
+        </select>
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" name="tie_breaker_enabled" <%=match.tie_breaker_enabled ? "checked" : "" %>>
+        Activar desempate para este partido
+      </label>
 
-<section class="card danger-zone">
-  <h2>Eliminar partido</h2>
-  <p class="muted">Esta acción también borra los pronósticos asociados a este partido.</p>
-  <form action="/admin/matches/<%= match.id %>/delete" method="post" onsubmit="return confirm('¿Seguro que quieres eliminar este partido?')">
-    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-    <button class="button danger" type="submit">Eliminar partido</button>
-  </form>
-</section>
+      <div id="tieBreakerFields">
 
-<%- include('partials/footer') %>
+        <label>
+          Goleador oficial
+          <input type="text" name="goal_scorer" value="<%= match.goal_scorer || '' %>">
+        </label>
+
+        <label>
+          Asistidor oficial
+          <input type="text" name="assist_player" value="<%= match.assist_player || '' %>">
+        </label>
+
+      </div>
+      <button class="button primary" type="submit">Guardar cambios</button>
+    </form>
+  </section>
+
+  <section class="card danger-zone">
+    <h2>Eliminar partido</h2>
+    <p class="muted">Esta acción también borra los pronósticos asociados a este partido.</p>
+    <form action="/admin/matches/<%= match.id %>/delete" method="post"
+      onsubmit="return confirm('¿Seguro que quieres eliminar este partido?')">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="button danger" type="submit">Eliminar partido</button>
+    </form>
+  </section>
+
+  <script>
+const checkbox = document.querySelector('input[name="tie_breaker_enabled"]');
+const fields = document.getElementById("tieBreakerFields");
+
+function toggleTieBreakerFields() {
+    fields.style.display = checkbox.checked ? "block" : "none";
+}
+
+checkbox.addEventListener("change", toggleTieBreakerFields);
+toggleTieBreakerFields();
+</script>
+
+  <%- include('partials/footer') %>

@@ -6,6 +6,14 @@ function cleanText(value) {
   return String(value || "").trim();
 }
 
+function normalizePlayerName(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 function parseNonNegativeInt(value, fieldName = "valor") {
   if (value === undefined || value === null || value === "") {
     return null;
@@ -32,7 +40,6 @@ function parseKickoffFromBogotaInput(value) {
     throw new Error("La fecha y hora del partido es obligatoria.");
   }
 
-  // Si llega con zona horaria o formato ISO completo, se respeta.
   if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(input)) {
     const date = new Date(input);
     if (Number.isNaN(date.getTime())) {
@@ -41,7 +48,6 @@ function parseKickoffFromBogotaInput(value) {
     return date.toISOString();
   }
 
-  // El formulario usa datetime-local. Lo interpretamos como hora de Colombia (UTC-5).
   const withSeconds = input.length === 16 ? `${input}:00` : input;
   const date = new Date(`${withSeconds}-05:00`);
   if (Number.isNaN(date.getTime())) {
@@ -126,8 +132,31 @@ function pointsForPrediction(prediction, match) {
   const realHome = Number(match.home_score);
   const realAway = Number(match.away_score);
 
-  if (predictedHome === realHome && predictedAway === realAway) return 3;
-  return resultSign(predictedHome, predictedAway) === resultSign(realHome, realAway) ? 1 : 0;
+  let points = 0;
+
+  if (predictedHome === realHome && predictedAway === realAway) {
+    points += 3;
+  } else if (resultSign(predictedHome, predictedAway) === resultSign(realHome, realAway)) {
+    points += 1;
+  }
+
+  if (match.tie_breaker_enabled) {
+    const predictedGoalScorer = normalizePlayerName(prediction.predicted_goal_scorer);
+    const officialGoalScorer = normalizePlayerName(match.goal_scorer);
+
+    const predictedAssistPlayer = normalizePlayerName(prediction.predicted_assist_player);
+    const officialAssistPlayer = normalizePlayerName(match.assist_player);
+
+    if (predictedGoalScorer && officialGoalScorer && predictedGoalScorer === officialGoalScorer) {
+      points += 3;
+    }
+
+    if (predictedAssistPlayer && officialAssistPlayer && predictedAssistPlayer === officialAssistPlayer) {
+      points += 3;
+    }
+  }
+
+  return points;
 }
 
 function csvEscape(value) {
@@ -141,6 +170,7 @@ function csvEscape(value) {
 module.exports = {
   normalizeEmail,
   cleanText,
+  normalizePlayerName,
   parseNonNegativeInt,
   parsePredictionScores,
   parseKickoffFromBogotaInput,

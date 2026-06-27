@@ -3225,3 +3225,75 @@ button[type="submit"].danger,
   color: #ff4d4d !important;
   border: 2px solid #ef4444 !important;
 }
+
+.tie-breaker-title{
+    width:100%;
+    text-align:center;
+    font-size:16px;
+    font-weight:700;
+    color:#ffd54a;
+    margin-bottom:12px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.tie-breaker-section{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.tie-breaker-section label{
+    width:100%;
+    text-align:center;
+    font-weight:600;
+    margin-bottom:4px;
+}
+
+.tie-breaker-section input{
+    width:220px;
+    text-align:center;
+    margin-bottom:10px;
+}
+
+.tie-breaker-section input{
+    width:220px;
+    text-align:center;
+
+    color:#fff;
+    font-size:18px;
+    font-weight:700;
+
+    background:#071325;
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:14px;
+
+    padding:12px;
+}
+
+.tie-breaker-section input::placeholder{
+    color:#7b8797;
+}
+
+.tie-breaker-section input:focus{
+    color:#fff;
+}
+
+.tie-breaker-section input:disabled{
+    color:#fff;
+    opacity:1;
+}
+
+.tie-breaker-section label{
+    width:100%;
+    text-align:center;
+
+    color:#ffd54a;
+    font-size:15px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.8px;
+
+    margin-top:6px;
+    margin-bottom:8px;
+}

@@ -137,6 +137,8 @@ function parseMatchForm(body) {
     throw new Error("Para registrar resultado debes escribir los dos marcadores.");
   }
 
+  const tieBreakerEnabled = body.tie_breaker_enabled === "on";
+
   return {
     group_name: cleanText(body.group_name),
     home_team: homeTeam,
@@ -145,7 +147,10 @@ function parseMatchForm(body) {
     venue: cleanText(body.venue),
     status: homeScore !== null && awayScore !== null ? "finished" : "scheduled",
     home_score: homeScore,
-    away_score: awayScore
+    away_score: awayScore,
+    tie_breaker_enabled: tieBreakerEnabled,
+    goal_scorer: tieBreakerEnabled ? cleanText(body.goal_scorer) : "",
+    assist_player: tieBreakerEnabled ? cleanText(body.assist_player) : ""
   };
 }
 
@@ -312,7 +317,14 @@ app.post("/predictions/:matchId", requireAuth, async (req, res, next) => {
     }
 
     const { homeScore, awayScore } = parsePredictionScores(req.body.home_score, req.body.away_score);
-    await db.upsertPrediction(res.locals.currentUser.id, match.id, homeScore, awayScore);
+    await db.upsertPrediction(
+      res.locals.currentUser.id,
+      match.id,
+      homeScore,
+      awayScore,
+      cleanText(req.body.predicted_goal_scorer || ""),
+      cleanText(req.body.predicted_assist_player || "")
+    );
     flash(req, "success", `Pronostico guardado: ${match.home_team} ${homeScore} - ${awayScore} ${match.away_team}.`);
     res.redirect("/predictions");
   } catch (error) {
@@ -383,7 +395,10 @@ app.get("/admin", requireAdmin, async (req, res, next) => {
         kickoff_at: "",
         venue: "",
         home_score: "",
-        away_score: ""
+        away_score: "",
+        tie_breaker_enabled: false,
+        goal_scorer: "",
+        assist_player: ""
       }
     });
   } catch (error) {
@@ -419,6 +434,8 @@ app.post("/admin/matches/:id/result", requireAdmin, async (req, res, next) => {
       return res.redirect("/admin");
     }
 
+    const tieBreakerEnabled = req.body.tie_breaker_enabled === "on";
+
     await db.updateMatch(req.params.id, {
       group_name: match.group_name,
       home_team: match.home_team,
@@ -427,7 +444,10 @@ app.post("/admin/matches/:id/result", requireAdmin, async (req, res, next) => {
       venue: match.venue,
       status: homeScore !== null && awayScore !== null ? "finished" : "scheduled",
       home_score: homeScore,
-      away_score: awayScore
+      away_score: awayScore,
+      tie_breaker_enabled: tieBreakerEnabled,
+      goal_scorer: tieBreakerEnabled ? cleanText(req.body.goal_scorer) : "",
+      assist_player: tieBreakerEnabled ? cleanText(req.body.assist_player) : ""
     });
 
     flash(req, "success", "Marcador oficial actualizado.");
@@ -437,7 +457,7 @@ app.post("/admin/matches/:id/result", requireAdmin, async (req, res, next) => {
     res.redirect("/admin");
   }
 });
-  
+
 
 app.get("/admin/matches/:id/edit", requireAdmin, async (req, res, next) => {
   try {
@@ -585,16 +605,16 @@ app.get("/admin/predictions", requireAdmin, async (req, res, next) => {
 
     const filtered = q
       ? predictions.filter((item) => {
-          const text = [
-            item.user_name,
-            item.user_email,
-            item.group_name,
-            item.home_team,
-            item.away_team
-          ].join(" ").toLowerCase();
+        const text = [
+          item.user_name,
+          item.user_email,
+          item.group_name,
+          item.home_team,
+          item.away_team
+        ].join(" ").toLowerCase();
 
-          return text.includes(q);
-        })
+        return text.includes(q);
+      })
       : predictions;
 
     res.render("admin-predictions", {

@@ -1,112 +1,147 @@
 <%- include('partials/header') %>
 
-<div class="page-heading">
-  <div>
-    <p class="eyebrow">Participante: <%= currentUser.name %></p>
-    <h1>Mis pronósticos</h1>
-    <p class="muted">Puedes cambiar un marcador hasta antes de la hora de inicio del partido.</p>
-  </div>
-
-  <div class="actions-row">
-    <a class="button secondary" href="/leaderboard">🏆 Tabla</a>
-    <a class="button secondary" href="/public-predictions">👥 Pronósticos de la comunidad</a>
-  </div>
-</div>
-
-<% groups.forEach((group) => { %>
-  <section class="day-block">
-    <h2><%= group.label %></h2>
-
-    <div class="match-list">
-      <% group.items.forEach((item) => {
-        const match = item.match;
-        const prediction = item.prediction;
-      %>
-
-        <article class="match-card <%= item.isLocked ? 'locked' : '' %>">
-
-          <div class="match-meta">
-            <span class="pill"><%= match.group_name || 'Partido' %></span>
-            <span><%= helpers.formatTime(match.kickoff_at) %></span>
-
-            <% if (item.isLocked) { %>
-              <span class="status closed">Cerrado</span>
-            <% } else { %>
-              <span class="status open">Abierto</span>
-            <% } %>
-          </div>
-
-          <form action="/predictions/<%= match.id %>" method="post" class="score-form horizontal-form">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-
-            <span class="info-title my-prediction-title">Pronóstico</span>
-
-            <div class="horizontal-score-row">
-              <span class="team-horizontal-name"><%= match.home_team %></span>
-
-              <input
-                class="score-input-horizontal"
-                type="number"
-                min="0"
-                max="30"
-                name="home_score"
-                value="<%= prediction ? prediction.home_score : '' %>"
-                <%= item.isLocked ? 'disabled' : 'required' %>
-              >
-
-              <span class="horizontal-dash">-</span>
-
-              <input
-                class="score-input-horizontal"
-                type="number"
-                min="0"
-                max="30"
-                name="away_score"
-                value="<%= prediction ? prediction.away_score : '' %>"
-                <%= item.isLocked ? 'disabled' : 'required' %>
-              >
-
-              <span class="team-horizontal-name"><%= match.away_team %></span>
-            </div>
-
-            <% if (!item.isLocked) { %>
-              <button class="button primary small horizontal-btn" type="submit">
-                <%= prediction ? 'Actualizar' : 'Guardar' %>
-              </button>
-            <% } %>
-          </form>
-
-          <div class="match-extra-info">
-
-            <div class="official-result-card">
-              <span class="info-title">Resultado oficial</span>
-
-              <% if (match.home_score !== null && match.away_score !== null) { %>
-                <strong><%= helpers.matchResultLabel(match) %></strong>
-              <% } else { %>
-                <strong class="pending-text">Pendiente</strong>
-              <% } %>
-            </div>
-
-            <div class="points-result-card">
-              <span class="info-title">Puntos obtenidos</span>
-
-              <% if (prediction && item.points !== null) { %>
-                <span class="points-badge points-<%= item.points %>">
-                  <%= item.points %>
-                </span>
-              <% } else { %>
-                <span class="points-badge pending">-</span>
-              <% } %>
-            </div>
-
-          </div>
-
-        </article>
-
-      <% }) %>
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">Participante: <%= currentUser.name %>
+      </p>
+      <h1>Mis pronósticos</h1>
+      <p class="muted">Puedes cambiar un marcador hasta antes de la hora de inicio del partido.</p>
     </div>
-  </section>
-<% }) %>
 
-<%- include('partials/footer') %>
+    <div class="actions-row">
+      <a class="button secondary" href="/leaderboard">🏆 Tabla</a>
+      <a class="button secondary" href="/public-predictions">👥 Pronósticos de la comunidad</a>
+    </div>
+  </div>
+
+  <% groups.forEach((group)=> { %>
+    <section class="day-block">
+      <h2>
+        <%= group.label %>
+      </h2>
+
+      <div class="match-list">
+        <% group.items.forEach((item)=> {
+          const match = item.match;
+          const prediction = item.prediction;
+          %>
+
+          <article class="match-card <%= item.isLocked ? 'locked' : '' %>">
+
+            <div class="match-meta">
+              <span class="pill">
+                <%= match.group_name || 'Partido' %>
+              </span>
+              <span>
+                <%= helpers.formatTime(match.kickoff_at) %>
+              </span>
+
+              <% if (item.isLocked) { %>
+                <span class="status closed">Cerrado</span>
+                <% } else { %>
+                  <span class="status open">Abierto</span>
+                  <% } %>
+            </div>
+
+            <form action="/predictions/<%= match.id %>" method="post" class="score-form horizontal-form">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+              <span class="info-title my-prediction-title">Pronóstico</span>
+
+              <div class="horizontal-score-row">
+                <span class="team-horizontal-name">
+                  <%= match.home_team %>
+                </span>
+
+                <input class="score-input-horizontal" type="number" min="0" max="30" name="home_score"
+                  value="<%= prediction ? prediction.home_score : '' %>" <%=item.isLocked ? 'disabled' : 'required' %>
+                >
+
+                <span class="horizontal-dash">-</span>
+
+                <input class="score-input-horizontal" type="number" min="0" max="30" name="away_score"
+                  value="<%= prediction ? prediction.away_score : '' %>" <%=item.isLocked ? 'disabled' : 'required' %>
+                >
+
+                <span class="team-horizontal-name">
+                  <%= match.away_team %>
+                </span>
+              </div>
+
+              <% if (match.tie_breaker_enabled) { %>
+                <div class="tie-breaker-section">
+
+                  <div class="tie-breaker-title">
+                    Desempate
+                  </div>
+
+                  <label>Goleador</label>
+
+                  <input type="text" name="predicted_goal_scorer" value="<%= prediction?.predicted_goal_scorer || '' %>"
+                    <%=item.isLocked ? "disabled" : "" %>
+                  >
+
+                  <label>Asistidor</label>
+
+                  <input type="text" name="predicted_assist_player"
+                    value="<%= prediction?.predicted_assist_player || '' %>" <%=item.isLocked ? "disabled" : "" %>
+                  >
+
+                </div>
+                <% } %>
+
+                  <% if (!item.isLocked) { %>
+                    <button class="button primary small horizontal-btn" type="submit">
+                      <%= prediction ? 'Actualizar' : 'Guardar' %>
+                    </button>
+                    <% } %>
+            </form>
+
+            <div class="match-extra-info">
+
+              <div class="official-result-card">
+                <span class="info-title">Resultado oficial</span>
+
+                <% if (match.home_score !==null && match.away_score !==null) { %>
+                  <strong>
+                    <%= helpers.matchResultLabel(match) %>
+                  </strong>
+                  <% } else { %>
+                    <strong class="pending-text">Pendiente</strong>
+                    <% } %>
+              </div>
+
+              <div class="points-result-card">
+                <span class="info-title">Puntos obtenidos</span>
+
+                <% if (prediction && item.points !==null) { %>
+                  <span class="points-badge <%= item.points > 0 ? 'points-positive' : 'points-zero' %>">
+                    <%= item.points %>
+                  </span>
+                  <% } else { %>
+                    <span class="points-badge pending">-</span>
+                    <% } %>
+              </div>
+
+            </div>
+
+          </article>
+
+          <% }) %>
+      </div>
+    </section>
+    <% }) %>
+
+      <style>
+        .points-positive {
+          background: #22c55e !important;
+          color: #052e16 !important;
+        }
+
+        .points-zero {
+          background: #dc2626 !important;
+          color: white !important;
+        }
+      </style>
+
+      <%- include('partials/footer') %>
