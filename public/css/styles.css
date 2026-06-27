@@ -2784,3 +2784,43 @@ MEDALLAS
     font-size:inherit;
     font-weight:800;
 }
+
+.leaderboard-table tbody tr:nth-child(1){
+    background:linear-gradient(
+        90deg,
+        rgba(255,210,63,.10),
+        rgba(255,210,63,.03)
+    );
+}
+
+.leaderboard-table tbody tr:nth-child(2){
+    background:linear-gradient(
+        90deg,
+        rgba(220,220,220,.08),
+        rgba(220,220,220,.02)
+    );
+}
+
+.leaderboard-table tbody tr:nth-child(3){
+    background:linear-gradient(
+        90deg,
+        rgba(205,127,50,.10),
+        rgba(205,127,50,.03)
+    );
+}
+
+.rank-normal{
+    display:inline-flex;
+    width:28px;
+    height:28px;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:#1E293B;
+    color:#CBD5E1;
+
+    font-weight:800;
+    font-size:14px;
+}
