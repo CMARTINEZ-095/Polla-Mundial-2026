@@ -1,120 +1,197 @@
 <%- include('partials/header') %>
 
-  <div class="page-heading">
-    <div>
-      <p class="eyebrow">Panel de administrador</p>
-      <h1>Administración</h1>
-      <p class="muted">Crea partidos, corrige calendario y registra resultados oficiales.</p>
-    </div>
-    <div class="actions-row">
-      <form action="/admin/sync-results" method="post" class="inline-form">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <button class="button secondary" type="submit">Sincronizar resultados</button>
-      </form>
-      <a class="button secondary" href="/admin/users">Usuarios</a>
-      <a class="button secondary" href="/admin/predictions">Ver pronósticos</a>
-      <a class="button secondary" href="/leaderboard.csv">Exportar tabla</a>
-    </div>
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Panel de administrador</p>
+    <h1>Administración</h1>
+    <p class="muted">Crea partidos, corrige calendario y registra resultados oficiales.</p>
   </div>
 
-  <section class="stats-grid admin-stats">
-    <div><strong>
-        <%= summary.players %>
-      </strong><span>Participantes</span></div>
-    <div><strong>
-        <%= summary.total_matches %>
-      </strong><span>Partidos</span></div>
-    <div><strong>
-        <%= summary.completed_matches %>
-      </strong><span>Finalizados</span></div>
-    <div><strong>
-        <%= summary.total_predictions %>
-      </strong><span>Pronósticos</span></div>
-  </section>
-
-  <section class="card">
-    <h2>Agregar partido</h2>
-    <form action="/admin/matches" method="post" class="admin-form">
+  <div class="actions-row">
+    <form action="/admin/sync-results" method="post" class="inline-form">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <label>
-        Grupo
-        <input type="text" name="group_name" placeholder="Grupo A">
-      </label>
-      <label>
-        Equipo local
-        <input type="text" name="home_team" required>
-      </label>
-      <label>
-        Equipo visitante
-        <input type="text" name="away_team" required>
-      </label>
-      <label>
-        Fecha/hora Colombia
-        <input type="datetime-local" name="kickoff_at" required>
-      </label>
-      <label>
-        Estadio / sede
-        <input type="text" name="venue" placeholder="Opcional">
-      </label>
-      <label>
-        Goles local
-        <input type="number" min="0" max="30" name="home_score" placeholder="Resultado">
-      </label>
-      <label>
-        Goles visitante
-        <input type="number" min="0" max="30" name="away_score" placeholder="Resultado">
-      </label>
-      <button class="button primary" type="submit">Crear partido</button>
     </form>
-  </section>
 
-  <section class="card table-card">
-    <div class="section-title">
-      <h2>Partidos cargados</h2>
-      <span class="muted">
-        <%= matches.length %> partidos
-      </span>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Grupo</th>
-            <th>Partido</th>
-            <th>Resultado</th>
-            <th>Estado</th>
-            <th></th>
+  </div>
+</div>
+
+<section class="stats-grid admin-stats">
+  <div>
+    <strong><%= summary.players %></strong>
+    <span>Participantes</span>
+  </div>
+
+  <div>
+    <strong><%= summary.total_matches %></strong>
+    <span>Partidos</span>
+  </div>
+
+  <div>
+    <strong><%= summary.completed_matches %></strong>
+    <span>Finalizados</span>
+  </div>
+
+  <div>
+    <strong><%= summary.total_predictions %></strong>
+    <span>Pronósticos</span>
+  </div>
+</section>
+
+<section class="card admin-create-match-card">
+  <div class="section-title">
+    <h2>Agregar partido</h2>
+    <span class="muted">Nuevo encuentro</span>
+  </div>
+
+  <form action="/admin/matches" method="post" class="admin-form admin-match-form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <label>
+      Grupo
+      <input type="text" name="group_name" placeholder="Grupo A">
+    </label>
+
+    <label>
+      Equipo local
+      <input type="text" name="home_team" required>
+    </label>
+
+    <label>
+      Equipo visitante
+      <input type="text" name="away_team" required>
+    </label>
+
+    <label>
+      Fecha/hora Colombia
+      <input type="datetime-local" name="kickoff_at" required>
+    </label>
+
+    <label>
+      Estadio / sede
+      <input type="text" name="venue" placeholder="Opcional">
+    </label>
+
+    <label>
+      Goles local
+      <input type="number" min="0" max="30" name="home_score" placeholder="Resultado">
+    </label>
+
+    <label>
+      Goles visitante
+      <input type="number" min="0" max="30" name="away_score" placeholder="Resultado">
+    </label>
+
+    <button class="button primary admin-create-button" type="submit">
+      Crear partido
+    </button>
+  </form>
+</section>
+
+<section class="card table-card admin-matches-card">
+  <div class="section-title">
+    <h2>Partidos cargados</h2>
+    <span class="muted"><%= matches.length %> partidos</span>
+  </div>
+
+  <div class="table-wrap admin-matches-table-wrap">
+    <table class="admin-matches-table">
+      <thead>
+        <tr>
+          <th>Partido</th>
+          <th>Marcador oficial</th>
+          <th>Estado</th>
+          <th>Eliminar</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% 
+          const colorClasses = [
+            'match-color-1',
+            'match-color-2',
+            'match-color-3',
+            'match-color-4',
+            'match-color-5',
+            'match-color-6',
+            'match-color-7',
+            'match-color-8'
+          ];
+        %>
+
+        <% matches.forEach((match, index) => { 
+          const rowColorClass = colorClasses[index % colorClasses.length];
+
+          let statusText = 'Programado';
+          let statusClass = 'admin-status-scheduled';
+
+          if (match.status === 'finished') {
+            statusText = 'Finalizado';
+            statusClass = 'admin-status-finished';
+          } else if (match.status === 'live') {
+            statusText = 'En vivo';
+            statusClass = 'admin-status-live';
+          }
+        %>
+
+          <tr class="admin-match-row <%= rowColorClass %>">
+            <td>
+              <strong><%= match.home_team %></strong>
+              <span class="admin-vs">vs</span>
+              <strong><%= match.away_team %></strong>
+            </td>
+
+            <td>
+              <form action="/admin/matches/<%= match.id %>/result" method="post" class="inline-result-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                <input 
+                  type="number" 
+                  min="0" 
+                  max="30" 
+                  name="home_score"
+                  value="<%= match.home_score !== null ? match.home_score : '' %>"
+                  placeholder="-"
+                >
+
+                <span class="admin-vs">-</span>
+
+                <input 
+                  type="number" 
+                  min="0" 
+                  max="30" 
+                  name="away_score"
+                  value="<%= match.away_score !== null ? match.away_score : '' %>"
+                  placeholder="-"
+                >
+
+                <button class="button tiny primary" type="submit">
+                  Guardar
+                </button>
+              </form>
+            </td>
+
+            <td>
+              <span class="admin-status-pill <%= statusClass %>">
+                <%= statusText %>
+              </span>
+            </td>
+
+            <td>
+              <form 
+                action="/admin/matches/<%= match.id %>/delete" 
+                method="post"
+                onsubmit="return confirm('¿Seguro que deseas eliminar este partido? También se pueden eliminar sus pronósticos asociados.');"
+              >
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="button tiny danger" type="submit">
+                  Eliminar
+                </button>
+              </form>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          <% matches.forEach((match)=> { %>
-            <tr>
-              <td>
-                <%= helpers.formatDateTime(match.kickoff_at) %>
-              </td>
-              <td>
-                <%= match.group_name %>
-              </td>
-              <td><strong>
-                  <%= match.home_team %>
-                </strong> vs <strong>
-                  <%= match.away_team %>
-                </strong></td>
-              <td>
-                <%= helpers.matchResultLabel(match) %>
-              </td>
-              <td>
-                <%= match.status==='finished' ? 'Finalizado' : (match.status==='live' ? 'En vivo' : 'Programado' ) %>
-              </td>
-              <td class="table-actions">
-                <a class="button tiny secondary" href="/admin/matches/<%= match.id %>/edit">Editar</a>
-              </td>
-            </tr>
-            <% }) %>
-        </tbody>
-      </table>
-    </div>
-  </section>
 
-  <%- include('partials/footer') %>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>

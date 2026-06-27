@@ -402,6 +402,42 @@ app.post("/admin/matches", requireAdmin, async (req, res, next) => {
     res.redirect("/admin");
   }
 });
+app.post("/admin/matches/:id/result", requireAdmin, async (req, res, next) => {
+  try {
+    const match = await db.getMatch(req.params.id);
+
+    if (!match) {
+      flash(req, "danger", "Partido no encontrado.");
+      return res.redirect("/admin");
+    }
+
+    const homeScore = parseNonNegativeInt(req.body.home_score, "Goles local");
+    const awayScore = parseNonNegativeInt(req.body.away_score, "Goles visitante");
+
+    if ((homeScore === null && awayScore !== null) || (homeScore !== null && awayScore === null)) {
+      flash(req, "danger", "Debes escribir los dos marcadores.");
+      return res.redirect("/admin");
+    }
+
+    await db.updateMatch(req.params.id, {
+      group_name: match.group_name,
+      home_team: match.home_team,
+      away_team: match.away_team,
+      kickoff_at: match.kickoff_at,
+      venue: match.venue,
+      status: homeScore !== null && awayScore !== null ? "finished" : "scheduled",
+      home_score: homeScore,
+      away_score: awayScore
+    });
+
+    flash(req, "success", "Marcador oficial actualizado.");
+    res.redirect("/admin");
+  } catch (error) {
+    flash(req, "danger", error.message);
+    res.redirect("/admin");
+  }
+});
+  
 
 app.get("/admin/matches/:id/edit", requireAdmin, async (req, res, next) => {
   try {
@@ -427,6 +463,7 @@ app.post("/admin/matches/:id", requireAdmin, async (req, res, next) => {
     res.redirect(`/admin/matches/${req.params.id}/edit`);
   }
 });
+
 
 app.post("/admin/matches/:id/delete", requireAdmin, async (req, res, next) => {
   try {

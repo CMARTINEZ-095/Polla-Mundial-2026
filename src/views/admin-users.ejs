@@ -1,50 +1,54 @@
 <%- include('partials/header') %>
 
-<div class="page-heading">
-  <div>
-    <p class="eyebrow">Administrador</p>
-    <h1>Usuarios registrados</h1>
-    <p class="muted">Desde aquí puedes restablecer o generar una clave temporal para cualquier usuario.</p>
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">Administrador</p>
+      <h1>Usuarios registrados</h1>
+      <p class="muted">Desde aquí puedes restablecer o generar una clave temporal para cualquier usuario.</p>
+    </div>
   </div>
-  <a class="button secondary" href="/admin">Volver</a>
-</div>
 
-<section class="card table-card">
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Correo</th>
-          <th>Rol</th>
-          <th>Creado</th>
-          <th>Pronósticos</th>
-          <th>Clave</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% users.forEach((user) => { %>
+  <section class="card table-card">
+    <div class="table-wrap">
+      <table>
+        <thead>
           <tr>
-            <td><%= user.name %></td>
-            <td><%= user.email %></td>
-            <td><%= user.role === 'admin' ? 'Administrador' : 'Participante' %></td>
-            <td><%= helpers.formatDateTime(user.created_at) %></td>
-            <td>
-              <a class="button tiny secondary" href="/admin/users/<%= user.id %>/predictions">Ver pronósticos</a>
-            </td>
-            <td class="password-cell">
-              <form action="/admin/users/<%= user.id %>/password" method="post" class="user-password-form">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <label class="sr-only" for="new-password-<%= user.id %>">Nueva clave para <%= user.name %></label>
-                <input id="new-password-<%= user.id %>" type="password" name="new_password" minlength="6" autocomplete="new-password" placeholder="Dejar en blanco para generar una temporal">
-                <button class="button tiny primary" type="submit">Guardar clave</button>
-              </form>
-            </td>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Rol</th>
+            <th>Creado</th>
+            <th>Clave</th>
           </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </div>
-</section>
+        </thead>
+        <tbody>
+          <% users.forEach((user)=> { %>
+            <tr>
+              <td>
+                <%= user.name %>
+              </td>
+              <td>
+                <%= user.email %>
+              </td>
+              <td>
+                <%= user.role==='admin' ? 'Administrador' : 'Participante' %>
+              </td>
+              <td>
+                <%= helpers.formatDateTime(user.created_at) %>
+              </td>
+              <td class="password-cell">
+                <form action="/admin/users/<%= user.id %>/password" method="post" class="user-password-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <label class="sr-only" for="new-password-<%= user.id %>">Nueva clave para <%= user.name %></label>
+                  <input id="new-password-<%= user.id %>" type="password" name="new_password" minlength="6"
+                    autocomplete="new-password" placeholder="Nueva clave" required>
+                  <button class="button tiny primary" type="submit">Guardar clave</button>
+                </form>
+              </td>
+            </tr>
+            <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
 
-<%- include('partials/footer') %>
+  <%- include('partials/footer') %>
