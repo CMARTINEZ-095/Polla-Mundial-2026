@@ -3592,6 +3592,38 @@ button[type="submit"].danger,
     border-color:#1d4ed8 !important;
 }
 
+@media (max-width: 768px) {
+  .navbar,
+  .nav,
+  .main-nav {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    gap: 10px;
+    padding: 8px 10px;
+  }
+
+  .navbar a,
+  .nav a,
+  .main-nav a {
+    flex: 0 0 auto;
+    font-size: 11px;
+    padding: 6px 8px;
+    white-space: nowrap;
+  }
+
+  .navbar a span,
+  .nav a span,
+  .main-nav a span {
+    display: none;
+  }
+
+  .brand,
+  .logo {
+    flex: 0 0 auto;
+    font-size: 11px;
+  }
+}
 
 
 
