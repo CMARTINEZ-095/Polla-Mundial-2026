@@ -3297,3 +3297,52 @@ button[type="submit"].danger,
     margin-top:6px;
     margin-bottom:8px;
 }
+
+.tie-breaker-box {
+  width: 100%;
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+}
+
+.tie-breaker-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 14px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.tie-breaker-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 16px;
+  align-items: end;
+}
+
+.tie-field label {
+  display: block;
+  color: #ffffff;
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.tie-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #061225;
+  color: #ffffff;
+  font-weight: 700;
+  text-align: center;
+}
+
+.tie-field input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}

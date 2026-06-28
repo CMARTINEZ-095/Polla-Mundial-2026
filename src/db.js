@@ -147,11 +147,23 @@ class JsonDatabase {
 
   async seedMatches() {
     const allowedKeys = new Set(GROUP_STAGE_FIXTURES.map((fixture) => fixture.matchKey));
-    this.data.matches = this.data.matches.filter((match) => !match.match_key || allowedKeys.has(match.match_key));
     const now = new Date().toISOString();
+
+    const uniqueMatches = new Map();
+
+    for (const match of this.data.matches) {
+      if (!match.match_key || !allowedKeys.has(match.match_key)) continue;
+
+      if (!uniqueMatches.has(match.match_key)) {
+        uniqueMatches.set(match.match_key, match);
+      }
+    }
+
+    this.data.matches = Array.from(uniqueMatches.values());
 
     for (const fixture of GROUP_STAGE_FIXTURES) {
       const existing = this.data.matches.find((match) => match.match_key === fixture.matchKey);
+
       if (existing) {
         Object.assign(existing, {
           group_name: fixture.groupName,
@@ -160,11 +172,10 @@ class JsonDatabase {
           kickoff_at: new Date(fixture.kickoffAt).toISOString(),
           venue: fixture.venue || existing.venue || "",
           auto_update: true,
-
           tie_breaker_enabled: existing.tie_breaker_enabled ?? false,
           goal_scorer: existing.goal_scorer ?? "",
           assist_player: existing.assist_player ?? "",
-
+          deleted: existing.deleted ?? false,
           updated_at: now
         });
       } else {
@@ -181,11 +192,10 @@ class JsonDatabase {
           external_fixture_id: null,
           match_key: fixture.matchKey,
           auto_update: true,
-
           tie_breaker_enabled: false,
           goal_scorer: "",
           assist_player: "",
-
+          deleted: false,
           created_at: now,
           updated_at: now
         });
@@ -193,245 +203,258 @@ class JsonDatabase {
     }
 
     const matchIds = new Set(this.data.matches.map((match) => Number(match.id)));
-    this.data.predictions = this.data.predictions.filter((prediction) => matchIds.has(Number(prediction.match_id)));
+    this.data.predictions = this.data.predictions.filter((prediction) =>
+      matchIds.has(Number(prediction.match_id))
+    );
   }
 
   async getUserByEmail(email) {
-    const normalized = normalizeEmail(email);
-    return normalizeUser(this.data.users.find((user) => user.email === normalized));
-  }
+  const normalized = normalizeEmail(email);
+  return normalizeUser(this.data.users.find((user) => user.email === normalized));
+}
 
   async getUserById(id) {
-    return normalizeUser(this.data.users.find((user) => Number(user.id) === Number(id)));
-  }
+  return normalizeUser(this.data.users.find((user) => Number(user.id) === Number(id)));
+}
 
   async listUsers() {
-    return this.data.users
-      .map(normalizeUser)
-      .sort((a, b) => a.name.localeCompare(b.name, "es"));
-  }
+  return this.data.users
+    .map(normalizeUser)
+    .sort((a, b) => a.name.localeCompare(b.name, "es"));
+}
 
   async createUser({ name, email, passwordHash, role = "user" }) {
-    const normalized = normalizeEmail(email);
-    if (await this.getUserByEmail(normalized)) {
-      throw new Error("Ya existe un usuario con ese correo.");
-    }
-    const now = new Date().toISOString();
-    const user = {
-      id: this.nextId("users"),
-      name,
-      email: normalized,
-      password_hash: passwordHash,
-      role,
-      created_at: now
-    };
-    this.data.users.push(user);
-    this.save();
-    return normalizeUser(user);
+  const normalized = normalizeEmail(email);
+  if (await this.getUserByEmail(normalized)) {
+    throw new Error("Ya existe un usuario con ese correo.");
   }
+  const now = new Date().toISOString();
+  const user = {
+    id: this.nextId("users"),
+    name,
+    email: normalized,
+    password_hash: passwordHash,
+    role,
+    created_at: now
+  };
+  this.data.users.push(user);
+  this.save();
+  return normalizeUser(user);
+}
 
   async updateUserPassword(userId, passwordHash) {
-    const user = this.data.users.find((item) => Number(item.id) === Number(userId));
-    if (!user) throw new Error("Usuario no encontrado.");
-    user.password_hash = passwordHash;
-    this.save();
-    return normalizeUser(user);
-  }
+  const user = this.data.users.find((item) => Number(item.id) === Number(userId));
+  if (!user) throw new Error("Usuario no encontrado.");
+  user.password_hash = passwordHash;
+  this.save();
+  return normalizeUser(user);
+}
 
   async listMatches() {
-    return this.data.matches
-      .map(normalizeMatch)
-      .sort((a, b) => new Date(a.kickoff_at) - new Date(b.kickoff_at) || a.id - b.id);
-  }
+  return this.data.matches
+    .filter((match) => !match.deleted)
+    .map(normalizeMatch)
+    .sort((a, b) => new Date(a.kickoff_at) - new Date(b.kickoff_at) || a.id - b.id);
+}
 
   async getMatch(id) {
-    return normalizeMatch(this.data.matches.find((match) => Number(match.id) === Number(id)));
-  }
+  return normalizeMatch(
+    this.data.matches.find((match) => Number(match.id) === Number(id) && !match.deleted)
+  );
+}
 
   async createMatch(data) {
-    const now = new Date().toISOString();
-    const match = {
-      id: this.nextId("matches"),
-      group_name: data.group_name || "",
-      home_team: data.home_team,
-      away_team: data.away_team,
-      kickoff_at: new Date(data.kickoff_at).toISOString(),
-      venue: data.venue || "",
-      status: data.status || "scheduled",
-      home_score: data.home_score === undefined ? null : data.home_score,
-      away_score: data.away_score === undefined ? null : data.away_score,
-      external_fixture_id: data.external_fixture_id || null,
-      match_key: data.match_key || null,
-      auto_update: data.auto_update === undefined ? false : Boolean(data.auto_update),
+  const now = new Date().toISOString();
+  const match = {
+    id: this.nextId("matches"),
+    group_name: data.group_name || "",
+    home_team: data.home_team,
+    away_team: data.away_team,
+    kickoff_at: new Date(data.kickoff_at).toISOString(),
+    venue: data.venue || "",
+    status: data.status || "scheduled",
+    home_score: data.home_score === undefined ? null : data.home_score,
+    away_score: data.away_score === undefined ? null : data.away_score,
+    external_fixture_id: data.external_fixture_id || null,
+    match_key: data.match_key || null,
+    auto_update: data.auto_update === undefined ? false : Boolean(data.auto_update),
 
+    tie_breaker_enabled: data.tie_breaker_enabled === undefined ? false : Boolean(data.tie_breaker_enabled),
+    goal_scorer: data.goal_scorer || "",
+    assist_player: data.assist_player || "",
+    deleted: false,
 
-      tie_breaker_enabled: data.tie_breaker_enabled === undefined ? false : Boolean(data.tie_breaker_enabled),
-      goal_scorer: data.goal_scorer || "",
-      assist_player: data.assist_player || "",
+    created_at: now,
+    updated_at: now
+  };
+  this.data.matches.push(match);
+  this.save();
+  return normalizeMatch(match);
+}
 
+  async updateMatch(id, data) {
+  const match = this.data.matches.find((item) => Number(item.id) === Number(id));
+  if (!match) throw new Error("Partido no encontrado.");
+
+  Object.assign(match, {
+    group_name: data.group_name ?? match.group_name,
+    home_team: data.home_team ?? match.home_team,
+    away_team: data.away_team ?? match.away_team,
+    kickoff_at: data.kickoff_at ? new Date(data.kickoff_at).toISOString() : match.kickoff_at,
+    venue: data.venue ?? match.venue,
+    status: data.status ?? match.status,
+    home_score: data.home_score === undefined ? match.home_score : data.home_score,
+    away_score: data.away_score === undefined ? match.away_score : data.away_score,
+    external_fixture_id: data.external_fixture_id === undefined ? match.external_fixture_id : data.external_fixture_id,
+    match_key: data.match_key === undefined ? match.match_key : data.match_key,
+    auto_update: data.auto_update === undefined ? match.auto_update : Boolean(data.auto_update),
+    tie_breaker_enabled: data.tie_breaker_enabled === undefined ? match.tie_breaker_enabled : Boolean(data.tie_breaker_enabled),
+    goal_scorer: data.goal_scorer === undefined ? match.goal_scorer : data.goal_scorer,
+    assist_player: data.assist_player === undefined ? match.assist_player : data.assist_player,
+    updated_at: new Date().toISOString()
+  });
+
+  if (match.home_score !== null && match.away_score !== null && data.status === undefined) {
+    match.status = "finished";
+  }
+
+  this.save();
+  return normalizeMatch(match);
+}
+
+  async deleteMatch(id) {
+  const match = this.data.matches.find(
+    (match) => Number(match.id) === Number(id)
+  );
+
+  if (!match) {
+    return false;
+  }
+
+  match.deleted = true;
+  match.updated_at = new Date().toISOString();
+
+  this.save();
+  return true;
+}
+
+  async listPredictionsByUser(userId) {
+  return this.data.predictions
+    .filter((prediction) => Number(prediction.user_id) === Number(userId))
+    .map(normalizePrediction);
+}
+
+  async getPrediction(userId, matchId) {
+  return normalizePrediction(this.data.predictions.find((prediction) => Number(prediction.user_id) === Number(userId) && Number(prediction.match_id) === Number(matchId)));
+}
+
+  async upsertPrediction(
+  userId,
+  matchId,
+  homeScore,
+  awayScore,
+  predictedGoalScorer = "",
+  predictedAssistPlayer = ""
+) {
+  const now = new Date().toISOString();
+  let prediction = this.data.predictions.find((item) => Number(item.user_id) === Number(userId) && Number(item.match_id) === Number(matchId));
+  if (prediction) {
+    prediction.home_score = homeScore;
+    prediction.away_score = awayScore;
+    prediction.predicted_goal_scorer = predictedGoalScorer || "";
+    prediction.predicted_assist_player = predictedAssistPlayer || "";
+    prediction.updated_at = now;
+  } else {
+    prediction = {
+      id: this.nextId("predictions"),
+      user_id: Number(userId),
+      match_id: Number(matchId),
+      home_score: homeScore,
+      away_score: awayScore,
+      predicted_goal_scorer: predictedGoalScorer || "",
+      predicted_assist_player: predictedAssistPlayer || "",
       created_at: now,
       updated_at: now
     };
-    this.data.matches.push(match);
-    this.save();
-    return normalizeMatch(match);
+    this.data.predictions.push(prediction);
   }
-
-  async updateMatch(id, data) {
-    const match = this.data.matches.find((item) => Number(item.id) === Number(id));
-    if (!match) throw new Error("Partido no encontrado.");
-
-    Object.assign(match, {
-      group_name: data.group_name ?? match.group_name,
-      home_team: data.home_team ?? match.home_team,
-      away_team: data.away_team ?? match.away_team,
-      kickoff_at: data.kickoff_at ? new Date(data.kickoff_at).toISOString() : match.kickoff_at,
-      venue: data.venue ?? match.venue,
-      status: data.status ?? match.status,
-      home_score: data.home_score === undefined ? match.home_score : data.home_score,
-      away_score: data.away_score === undefined ? match.away_score : data.away_score,
-      external_fixture_id: data.external_fixture_id === undefined ? match.external_fixture_id : data.external_fixture_id,
-      match_key: data.match_key === undefined ? match.match_key : data.match_key,
-      auto_update: data.auto_update === undefined ? match.auto_update : Boolean(data.auto_update),
-      tie_breaker_enabled: data.tie_breaker_enabled === undefined ? match.tie_breaker_enabled : Boolean(data.tie_breaker_enabled),
-      goal_scorer: data.goal_scorer === undefined ? match.goal_scorer : data.goal_scorer,
-      assist_player: data.assist_player === undefined ? match.assist_player : data.assist_player,
-      updated_at: new Date().toISOString()
-    });
-
-    if (match.home_score !== null && match.away_score !== null && data.status === undefined) {
-      match.status = "finished";
-    }
-
-    this.save();
-    return normalizeMatch(match);
-  }
-
-  async deleteMatch(id) {
-    const before = this.data.matches.length;
-    this.data.matches = this.data.matches.filter((match) => Number(match.id) !== Number(id));
-    this.data.predictions = this.data.predictions.filter((prediction) => Number(prediction.match_id) !== Number(id));
-    this.save();
-    return before !== this.data.matches.length;
-  }
-
-  async listPredictionsByUser(userId) {
-    return this.data.predictions
-      .filter((prediction) => Number(prediction.user_id) === Number(userId))
-      .map(normalizePrediction);
-  }
-
-  async getPrediction(userId, matchId) {
-    return normalizePrediction(this.data.predictions.find((prediction) => Number(prediction.user_id) === Number(userId) && Number(prediction.match_id) === Number(matchId)));
-  }
-
-  async upsertPrediction(
-    userId,
-    matchId,
-    homeScore,
-    awayScore,
-    predictedGoalScorer = "",
-    predictedAssistPlayer = ""
-  ) {
-    const now = new Date().toISOString();
-    let prediction = this.data.predictions.find((item) => Number(item.user_id) === Number(userId) && Number(item.match_id) === Number(matchId));
-    if (prediction) {
-      prediction.home_score = homeScore;
-      prediction.away_score = awayScore;
-      prediction.predicted_goal_scorer = predictedGoalScorer || "";
-      prediction.predicted_assist_player = predictedAssistPlayer || "";
-      prediction.updated_at = now;
-    } else {
-      prediction = {
-        id: this.nextId("predictions"),
-        user_id: Number(userId),
-        match_id: Number(matchId),
-        home_score: homeScore,
-        away_score: awayScore,
-        predicted_goal_scorer: predictedGoalScorer || "",
-        predicted_assist_player: predictedAssistPlayer || "",
-        created_at: now,
-        updated_at: now
-      };
-      this.data.predictions.push(prediction);
-    }
-    this.save();
-    return normalizePrediction(prediction);
-  }
+  this.save();
+  return normalizePrediction(prediction);
+}
 
   async getLeaderboard() {
-    const nonAdminUsers = this.data.users.filter((user) => user.role !== "admin");
-    const matchesById = new Map(this.data.matches.map((match) => [Number(match.id), match]));
+  const nonAdminUsers = this.data.users.filter((user) => user.role !== "admin");
+  const matchesById = new Map(this.data.matches.map((match) => [Number(match.id), match]));
 
-    return nonAdminUsers.map((user) => {
-      const userPredictions = this.data.predictions.filter((prediction) => Number(prediction.user_id) === Number(user.id));
-      let points = 0;
-      let exacts = 0;
-      let outcomes = 0;
-      let predictionsChecked = 0;
+  return nonAdminUsers.map((user) => {
+    const userPredictions = this.data.predictions.filter((prediction) => Number(prediction.user_id) === Number(user.id));
+    let points = 0;
+    let exacts = 0;
+    let outcomes = 0;
+    let predictionsChecked = 0;
 
-      for (const prediction of userPredictions) {
-        const match = matchesById.get(Number(prediction.match_id));
-        if (!match || match.home_score === null || match.away_score === null) continue;
-        predictionsChecked += 1;
-        const earned = pointsForPrediction(prediction, match);
-        points += earned;
-        if (Number(prediction.home_score) === Number(match.home_score) && Number(prediction.away_score) === Number(match.away_score)) {
-          exacts += 1;
-        } else if (
-          resultSign(prediction.home_score, prediction.away_score) ===
-          resultSign(match.home_score, match.away_score)
-        ) {
-          outcomes += 1;
-        }
+    for (const prediction of userPredictions) {
+      const match = matchesById.get(Number(prediction.match_id));
+      if (!match || match.home_score === null || match.away_score === null) continue;
+      predictionsChecked += 1;
+      const earned = pointsForPrediction(prediction, match);
+      points += earned;
+      if (Number(prediction.home_score) === Number(match.home_score) && Number(prediction.away_score) === Number(match.away_score)) {
+        exacts += 1;
+      } else if (
+        resultSign(prediction.home_score, prediction.away_score) ===
+        resultSign(match.home_score, match.away_score)
+      ) {
+        outcomes += 1;
       }
+    }
 
-      return {
-        id: Number(user.id),
-        name: user.name,
-        email: user.email,
-        points,
-        exacts,
-        outcomes,
-        predictions_checked: predictionsChecked,
-        total_predictions: userPredictions.length
-      };
-    }).sort(leaderboardSort);
-  }
+    return {
+      id: Number(user.id),
+      name: user.name,
+      email: user.email,
+      points,
+      exacts,
+      outcomes,
+      predictions_checked: predictionsChecked,
+      total_predictions: userPredictions.length
+    };
+  }).sort(leaderboardSort);
+}
 
   async listAllPredictionsDetailed() {
-    return this.data.predictions.map((prediction) => {
-      const user = this.data.users.find((u) => Number(u.id) === Number(prediction.user_id));
-      const match = this.data.matches.find((m) => Number(m.id) === Number(prediction.match_id));
-      return {
-        user_name: user?.name || "",
-        user_email: user?.email || "",
-        match_id: match ? Number(match.id) : null,
-        group_name: match?.group_name || "",
-        home_team: match?.home_team || "",
-        away_team: match?.away_team || "",
-        kickoff_at: match?.kickoff_at || "",
-        prediction_home_score: prediction.home_score,
-        prediction_away_score: prediction.away_score,
-        real_home_score: match?.home_score ?? null,
-        real_away_score: match?.away_score ?? null,
-        points: match ? pointsForPrediction(prediction, match) : null
-      };
-    }).sort((a, b) => new Date(a.kickoff_at) - new Date(b.kickoff_at) || a.user_name.localeCompare(b.user_name, "es"));
-
-
-  }
-  async getStatsSummary() {
-    const players = this.data.users.filter((user) => user.role !== "admin").length;
-    const totalMatches = this.data.matches.length;
-    const completedMatches = this.data.matches.filter((match) => match.home_score !== null && match.away_score !== null).length;
+  return this.data.predictions.map((prediction) => {
+    const user = this.data.users.find((u) => Number(u.id) === Number(prediction.user_id));
+    const match = this.data.matches.find((m) => Number(m.id) === Number(prediction.match_id));
     return {
-      players,
-      total_matches: totalMatches,
-      completed_matches: completedMatches,
-      total_predictions: this.data.predictions.length
+      user_name: user?.name || "",
+      user_email: user?.email || "",
+      match_id: match ? Number(match.id) : null,
+      group_name: match?.group_name || "",
+      home_team: match?.home_team || "",
+      away_team: match?.away_team || "",
+      kickoff_at: match?.kickoff_at || "",
+      prediction_home_score: prediction.home_score,
+      prediction_away_score: prediction.away_score,
+      real_home_score: match?.home_score ?? null,
+      real_away_score: match?.away_score ?? null,
+      points: match ? pointsForPrediction(prediction, match) : null
     };
-  }
+  }).sort((a, b) => new Date(a.kickoff_at) - new Date(b.kickoff_at) || a.user_name.localeCompare(b.user_name, "es"));
+
+
+}
+  async getStatsSummary() {
+  const players = this.data.users.filter((user) => user.role !== "admin").length;
+  const totalMatches = this.data.matches.length;
+  const completedMatches = this.data.matches.filter((match) => match.home_score !== null && match.away_score !== null).length;
+  return {
+    players,
+    total_matches: totalMatches,
+    completed_matches: completedMatches,
+    total_predictions: this.data.predictions.length
+  };
+}
 }
 
 class PgDatabase {
@@ -462,59 +485,66 @@ class PgDatabase {
 
   async migrate() {
     await this.pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id SERIAL PRIMARY KEY,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL UNIQUE,
-        password_hash TEXT NOT NULL,
-        role TEXT NOT NULL DEFAULT 'user',
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      );
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'user',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
 
-      CREATE TABLE IF NOT EXISTS matches (
-        id SERIAL PRIMARY KEY,
-        group_name TEXT DEFAULT '',
-        home_team TEXT NOT NULL,
-        away_team TEXT NOT NULL,
-        kickoff_at TIMESTAMPTZ NOT NULL,
-        venue TEXT DEFAULT '',
-        status TEXT NOT NULL DEFAULT 'scheduled',
-        home_score INTEGER,
-        away_score INTEGER,
-        external_fixture_id TEXT,
-        match_key TEXT UNIQUE,
-        auto_update BOOLEAN NOT NULL DEFAULT TRUE,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      );
+    CREATE TABLE IF NOT EXISTS matches (
+      id SERIAL PRIMARY KEY,
+      group_name TEXT DEFAULT '',
+      home_team TEXT NOT NULL,
+      away_team TEXT NOT NULL,
+      kickoff_at TIMESTAMPTZ NOT NULL,
+      venue TEXT DEFAULT '',
+      status TEXT NOT NULL DEFAULT 'scheduled',
+      home_score INTEGER,
+      away_score INTEGER,
+      external_fixture_id TEXT,
+      match_key TEXT UNIQUE,
+      auto_update BOOLEAN NOT NULL DEFAULT TRUE,
+      tie_breaker_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+      goal_scorer TEXT NOT NULL DEFAULT '',
+      assist_player TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      deleted BOOLEAN NOT NULL DEFAULT FALSE
+    );
 
-      CREATE TABLE IF NOT EXISTS predictions (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        match_id INTEGER NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
-        home_score INTEGER NOT NULL CHECK (home_score >= 0 AND home_score <= 30),
-        away_score INTEGER NOT NULL CHECK (away_score >= 0 AND away_score <= 30),
-        predicted_goal_scorer TEXT NOT NULL DEFAULT '',
-        predicted_assist_player TEXT NOT NULL DEFAULT '',
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        UNIQUE(user_id, match_id)
-      );
+    CREATE TABLE IF NOT EXISTS predictions (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      match_id INTEGER NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
+      home_score INTEGER NOT NULL CHECK (home_score >= 0 AND home_score <= 30),
+      away_score INTEGER NOT NULL CHECK (away_score >= 0 AND away_score <= 30),
+      predicted_goal_scorer TEXT NOT NULL DEFAULT '',
+      predicted_assist_player TEXT NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      UNIQUE(user_id, match_id)
+    );
+  `);
 
-      ALTER TABLE matches ADD COLUMN IF NOT EXISTS external_fixture_id TEXT;
-      ALTER TABLE matches ADD COLUMN IF NOT EXISTS match_key TEXT;
-      ALTER TABLE matches ADD COLUMN IF NOT EXISTS auto_update BOOLEAN NOT NULL DEFAULT TRUE;
-      ALTER TABLE matches ADD COLUMN IF NOT EXISTS tie_breaker_enabled BOOLEAN NOT NULL DEFAULT FALSE;
-      ALTER TABLE matches ADD COLUMN IF NOT EXISTS goal_scorer TEXT NOT NULL DEFAULT '';
-      ALTER TABLE matches ADD COLUMN IF NOT EXISTS assist_player TEXT NOT NULL DEFAULT '';
-      DROP INDEX IF EXISTS idx_matches_match_key;
-      CREATE UNIQUE INDEX idx_matches_match_key ON matches(match_key);
-      CREATE INDEX IF NOT EXISTS idx_matches_kickoff_at ON matches(kickoff_at);
-      CREATE INDEX IF NOT EXISTS idx_predictions_user_id ON predictions(user_id);
-      CREATE INDEX IF NOT EXISTS idx_predictions_match_id ON predictions(match_id);
-      ALTER TABLE predictions ADD COLUMN IF NOT EXISTS predicted_goal_scorer TEXT NOT NULL DEFAULT '';
-      ALTER TABLE predictions ADD COLUMN IF NOT EXISTS predicted_assist_player TEXT NOT NULL DEFAULT '';
-    `);
+    await this.pool.query("ALTER TABLE matches ADD COLUMN IF NOT EXISTS external_fixture_id TEXT;");
+    await this.pool.query("ALTER TABLE matches ADD COLUMN IF NOT EXISTS match_key TEXT;");
+    await this.pool.query("ALTER TABLE matches ADD COLUMN IF NOT EXISTS auto_update BOOLEAN NOT NULL DEFAULT TRUE;");
+    await this.pool.query("ALTER TABLE matches ADD COLUMN IF NOT EXISTS tie_breaker_enabled BOOLEAN NOT NULL DEFAULT FALSE;");
+    await this.pool.query("ALTER TABLE matches ADD COLUMN IF NOT EXISTS goal_scorer TEXT NOT NULL DEFAULT '';");
+    await this.pool.query("ALTER TABLE matches ADD COLUMN IF NOT EXISTS assist_player TEXT NOT NULL DEFAULT '';");
+    await this.pool.query("ALTER TABLE matches ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE;");
+
+    await this.pool.query("DROP INDEX IF EXISTS idx_matches_match_key;");
+    await this.pool.query("CREATE UNIQUE INDEX IF NOT EXISTS idx_matches_match_key ON matches(match_key);");
+    await this.pool.query("CREATE INDEX IF NOT EXISTS idx_matches_kickoff_at ON matches(kickoff_at);");
+    await this.pool.query("CREATE INDEX IF NOT EXISTS idx_predictions_user_id ON predictions(user_id);");
+    await this.pool.query("CREATE INDEX IF NOT EXISTS idx_predictions_match_id ON predictions(match_id);");
+
+    await this.pool.query("ALTER TABLE predictions ADD COLUMN IF NOT EXISTS predicted_goal_scorer TEXT NOT NULL DEFAULT '';");
+    await this.pool.query("ALTER TABLE predictions ADD COLUMN IF NOT EXISTS predicted_assist_player TEXT NOT NULL DEFAULT '';");
   }
 
   async seedAdmin() {
@@ -590,12 +620,12 @@ class PgDatabase {
   }
 
   async listMatches() {
-    const result = await this.pool.query("SELECT * FROM matches ORDER BY kickoff_at ASC, id ASC");
+    const result = await this.pool.query("SELECT * FROM matches WHERE COALESCE(deleted, FALSE) = FALSE ORDER BY kickoff_at ASC, id ASC");
     return result.rows.map(normalizeMatch);
   }
 
   async getMatch(id) {
-    const result = await this.pool.query("SELECT * FROM matches WHERE id = $1", [id]);
+    const result = await this.pool.query("SELECT * FROM matches WHERE id = $1  AND COALESCE(deleted, FALSE) = FALSE", [id]);
     return normalizeMatch(result.rows[0]);
   }
 
@@ -690,7 +720,10 @@ class PgDatabase {
   }
 
   async deleteMatch(id) {
-    const result = await this.pool.query("DELETE FROM matches WHERE id = $1", [id]);
+    const result = await this.pool.query(
+      "UPDATE matches SET deleted = TRUE WHERE id = $1",
+      [id]
+    );
     return result.rowCount > 0;
   }
 

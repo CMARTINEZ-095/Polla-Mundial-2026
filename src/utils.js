@@ -148,11 +148,11 @@ function pointsForPrediction(prediction, match) {
     const officialAssistPlayer = normalizePlayerName(match.assist_player);
 
     if (predictedGoalScorer && officialGoalScorer && predictedGoalScorer === officialGoalScorer) {
-      points += 3;
+      points += 1;
     }
 
     if (predictedAssistPlayer && officialAssistPlayer && predictedAssistPlayer === officialAssistPlayer) {
-      points += 3;
+      points += 1;
     }
   }
 
