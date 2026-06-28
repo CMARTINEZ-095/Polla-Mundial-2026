@@ -209,258 +209,263 @@ class JsonDatabase {
   }
 
   async getUserByEmail(email) {
-  const normalized = normalizeEmail(email);
-  return normalizeUser(this.data.users.find((user) => user.email === normalized));
-}
+    const normalized = normalizeEmail(email);
+    return normalizeUser(this.data.users.find((user) => user.email === normalized));
+  }
 
   async getUserById(id) {
-  return normalizeUser(this.data.users.find((user) => Number(user.id) === Number(id)));
-}
+    return normalizeUser(this.data.users.find((user) => Number(user.id) === Number(id)));
+  }
 
   async listUsers() {
-  return this.data.users
-    .map(normalizeUser)
-    .sort((a, b) => a.name.localeCompare(b.name, "es"));
-}
+    return this.data.users
+      .map(normalizeUser)
+      .sort((a, b) => a.name.localeCompare(b.name, "es"));
+  }
 
   async createUser({ name, email, passwordHash, role = "user" }) {
-  const normalized = normalizeEmail(email);
-  if (await this.getUserByEmail(normalized)) {
-    throw new Error("Ya existe un usuario con ese correo.");
+    const normalized = normalizeEmail(email);
+    if (await this.getUserByEmail(normalized)) {
+      throw new Error("Ya existe un usuario con ese correo.");
+    }
+    const now = new Date().toISOString();
+    const user = {
+      id: this.nextId("users"),
+      name,
+      email: normalized,
+      password_hash: passwordHash,
+      role,
+      created_at: now
+    };
+    this.data.users.push(user);
+    this.save();
+    return normalizeUser(user);
   }
-  const now = new Date().toISOString();
-  const user = {
-    id: this.nextId("users"),
-    name,
-    email: normalized,
-    password_hash: passwordHash,
-    role,
-    created_at: now
-  };
-  this.data.users.push(user);
-  this.save();
-  return normalizeUser(user);
-}
 
   async updateUserPassword(userId, passwordHash) {
-  const user = this.data.users.find((item) => Number(item.id) === Number(userId));
-  if (!user) throw new Error("Usuario no encontrado.");
-  user.password_hash = passwordHash;
-  this.save();
-  return normalizeUser(user);
-}
+    const user = this.data.users.find((item) => Number(item.id) === Number(userId));
+    if (!user) throw new Error("Usuario no encontrado.");
+    user.password_hash = passwordHash;
+    this.save();
+    return normalizeUser(user);
+  }
 
   async listMatches() {
-  return this.data.matches
-    .filter((match) => !match.deleted)
-    .map(normalizeMatch)
-    .sort((a, b) => new Date(a.kickoff_at) - new Date(b.kickoff_at) || a.id - b.id);
-}
+    return this.data.matches
+      .filter((match) => !match.deleted)
+      .map(normalizeMatch)
+      .sort((a, b) => new Date(a.kickoff_at) - new Date(b.kickoff_at) || a.id - b.id);
+  }
 
   async getMatch(id) {
-  return normalizeMatch(
-    this.data.matches.find((match) => Number(match.id) === Number(id) && !match.deleted)
-  );
-}
+    return normalizeMatch(
+      this.data.matches.find((match) => Number(match.id) === Number(id) && !match.deleted)
+    );
+  }
 
   async createMatch(data) {
-  const now = new Date().toISOString();
-  const match = {
-    id: this.nextId("matches"),
-    group_name: data.group_name || "",
-    home_team: data.home_team,
-    away_team: data.away_team,
-    kickoff_at: new Date(data.kickoff_at).toISOString(),
-    venue: data.venue || "",
-    status: data.status || "scheduled",
-    home_score: data.home_score === undefined ? null : data.home_score,
-    away_score: data.away_score === undefined ? null : data.away_score,
-    external_fixture_id: data.external_fixture_id || null,
-    match_key: data.match_key || null,
-    auto_update: data.auto_update === undefined ? false : Boolean(data.auto_update),
+    const now = new Date().toISOString();
+    const match = {
+      id: this.nextId("matches"),
+      group_name: data.group_name || "",
+      home_team: data.home_team,
+      away_team: data.away_team,
+      kickoff_at: new Date(data.kickoff_at).toISOString(),
+      venue: data.venue || "",
+      status: data.status || "scheduled",
+      home_score: data.home_score === undefined ? null : data.home_score,
+      away_score: data.away_score === undefined ? null : data.away_score,
+      external_fixture_id: data.external_fixture_id || null,
+      match_key: data.match_key || null,
+      auto_update: data.auto_update === undefined ? false : Boolean(data.auto_update),
 
-    tie_breaker_enabled: data.tie_breaker_enabled === undefined ? false : Boolean(data.tie_breaker_enabled),
-    goal_scorer: data.goal_scorer || "",
-    assist_player: data.assist_player || "",
-    deleted: false,
+      tie_breaker_enabled: data.tie_breaker_enabled === undefined ? false : Boolean(data.tie_breaker_enabled),
+      goal_scorer: data.goal_scorer || "",
+      assist_player: data.assist_player || "",
+      deleted: false,
 
-    created_at: now,
-    updated_at: now
-  };
-  this.data.matches.push(match);
-  this.save();
-  return normalizeMatch(match);
-}
-
-  async updateMatch(id, data) {
-  const match = this.data.matches.find((item) => Number(item.id) === Number(id));
-  if (!match) throw new Error("Partido no encontrado.");
-
-  Object.assign(match, {
-    group_name: data.group_name ?? match.group_name,
-    home_team: data.home_team ?? match.home_team,
-    away_team: data.away_team ?? match.away_team,
-    kickoff_at: data.kickoff_at ? new Date(data.kickoff_at).toISOString() : match.kickoff_at,
-    venue: data.venue ?? match.venue,
-    status: data.status ?? match.status,
-    home_score: data.home_score === undefined ? match.home_score : data.home_score,
-    away_score: data.away_score === undefined ? match.away_score : data.away_score,
-    external_fixture_id: data.external_fixture_id === undefined ? match.external_fixture_id : data.external_fixture_id,
-    match_key: data.match_key === undefined ? match.match_key : data.match_key,
-    auto_update: data.auto_update === undefined ? match.auto_update : Boolean(data.auto_update),
-    tie_breaker_enabled: data.tie_breaker_enabled === undefined ? match.tie_breaker_enabled : Boolean(data.tie_breaker_enabled),
-    goal_scorer: data.goal_scorer === undefined ? match.goal_scorer : data.goal_scorer,
-    assist_player: data.assist_player === undefined ? match.assist_player : data.assist_player,
-    updated_at: new Date().toISOString()
-  });
-
-  if (match.home_score !== null && match.away_score !== null && data.status === undefined) {
-    match.status = "finished";
-  }
-
-  this.save();
-  return normalizeMatch(match);
-}
-
-  async deleteMatch(id) {
-  const match = this.data.matches.find(
-    (match) => Number(match.id) === Number(id)
-  );
-
-  if (!match) {
-    return false;
-  }
-
-  match.deleted = true;
-  match.updated_at = new Date().toISOString();
-
-  this.save();
-  return true;
-}
-
-  async listPredictionsByUser(userId) {
-  return this.data.predictions
-    .filter((prediction) => Number(prediction.user_id) === Number(userId))
-    .map(normalizePrediction);
-}
-
-  async getPrediction(userId, matchId) {
-  return normalizePrediction(this.data.predictions.find((prediction) => Number(prediction.user_id) === Number(userId) && Number(prediction.match_id) === Number(matchId)));
-}
-
-  async upsertPrediction(
-  userId,
-  matchId,
-  homeScore,
-  awayScore,
-  predictedGoalScorer = "",
-  predictedAssistPlayer = ""
-) {
-  const now = new Date().toISOString();
-  let prediction = this.data.predictions.find((item) => Number(item.user_id) === Number(userId) && Number(item.match_id) === Number(matchId));
-  if (prediction) {
-    prediction.home_score = homeScore;
-    prediction.away_score = awayScore;
-    prediction.predicted_goal_scorer = predictedGoalScorer || "";
-    prediction.predicted_assist_player = predictedAssistPlayer || "";
-    prediction.updated_at = now;
-  } else {
-    prediction = {
-      id: this.nextId("predictions"),
-      user_id: Number(userId),
-      match_id: Number(matchId),
-      home_score: homeScore,
-      away_score: awayScore,
-      predicted_goal_scorer: predictedGoalScorer || "",
-      predicted_assist_player: predictedAssistPlayer || "",
       created_at: now,
       updated_at: now
     };
-    this.data.predictions.push(prediction);
+    this.data.matches.push(match);
+    this.save();
+    return normalizeMatch(match);
   }
-  this.save();
-  return normalizePrediction(prediction);
-}
 
-  async getLeaderboard() {
-  const nonAdminUsers = this.data.users.filter((user) => user.role !== "admin");
-  const matchesById = new Map(this.data.matches.map((match) => [Number(match.id), match]));
+  async updateMatch(id, data) {
+    const match = this.data.matches.find((item) => Number(item.id) === Number(id));
+    if (!match) throw new Error("Partido no encontrado.");
 
-  return nonAdminUsers.map((user) => {
-    const userPredictions = this.data.predictions.filter((prediction) => Number(prediction.user_id) === Number(user.id));
-    let points = 0;
-    let exacts = 0;
-    let outcomes = 0;
-    let predictionsChecked = 0;
+    Object.assign(match, {
+      group_name: data.group_name ?? match.group_name,
+      home_team: data.home_team ?? match.home_team,
+      away_team: data.away_team ?? match.away_team,
+      kickoff_at: data.kickoff_at ? new Date(data.kickoff_at).toISOString() : match.kickoff_at,
+      venue: data.venue ?? match.venue,
+      status: data.status ?? match.status,
+      home_score: data.home_score === undefined ? match.home_score : data.home_score,
+      away_score: data.away_score === undefined ? match.away_score : data.away_score,
+      external_fixture_id: data.external_fixture_id === undefined ? match.external_fixture_id : data.external_fixture_id,
+      match_key: data.match_key === undefined ? match.match_key : data.match_key,
+      auto_update: data.auto_update === undefined ? match.auto_update : Boolean(data.auto_update),
+      tie_breaker_enabled: data.tie_breaker_enabled === undefined ? match.tie_breaker_enabled : Boolean(data.tie_breaker_enabled),
+      goal_scorer: data.goal_scorer === undefined ? match.goal_scorer : data.goal_scorer,
+      assist_player: data.assist_player === undefined ? match.assist_player : data.assist_player,
+      updated_at: new Date().toISOString()
+    });
 
-    for (const prediction of userPredictions) {
-      const match = matchesById.get(Number(prediction.match_id));
-      if (!match || match.home_score === null || match.away_score === null) continue;
-      predictionsChecked += 1;
-      const earned = pointsForPrediction(prediction, match);
-      points += earned;
-      if (Number(prediction.home_score) === Number(match.home_score) && Number(prediction.away_score) === Number(match.away_score)) {
-        exacts += 1;
-      } else if (
-        resultSign(prediction.home_score, prediction.away_score) ===
-        resultSign(match.home_score, match.away_score)
-      ) {
-        outcomes += 1;
-      }
+    if (match.home_score !== null && match.away_score !== null && data.status === undefined) {
+      match.status = "finished";
     }
 
-    return {
-      id: Number(user.id),
-      name: user.name,
-      email: user.email,
-      points,
-      exacts,
-      outcomes,
-      predictions_checked: predictionsChecked,
-      total_predictions: userPredictions.length
-    };
-  }).sort(leaderboardSort);
-}
+    this.save();
+    return normalizeMatch(match);
+  }
+
+  async deleteMatch(id) {
+    const match = this.data.matches.find(
+      (match) => Number(match.id) === Number(id)
+    );
+
+    if (!match) {
+      return false;
+    }
+
+    match.deleted = true;
+    match.updated_at = new Date().toISOString();
+
+    this.save();
+    return true;
+  }
+
+  async listPredictionsByUser(userId) {
+    return this.data.predictions
+      .filter((prediction) => Number(prediction.user_id) === Number(userId))
+      .map(normalizePrediction);
+  }
+
+  async getPrediction(userId, matchId) {
+    return normalizePrediction(this.data.predictions.find((prediction) => Number(prediction.user_id) === Number(userId) && Number(prediction.match_id) === Number(matchId)));
+  }
+
+  async upsertPrediction(
+    userId,
+    matchId,
+    homeScore,
+    awayScore,
+    predictedGoalScorer = "",
+    predictedAssistPlayer = ""
+  ) {
+    const now = new Date().toISOString();
+    let prediction = this.data.predictions.find((item) => Number(item.user_id) === Number(userId) && Number(item.match_id) === Number(matchId));
+    if (prediction) {
+      prediction.home_score = homeScore;
+      prediction.away_score = awayScore;
+      prediction.predicted_goal_scorer = predictedGoalScorer || "";
+      prediction.predicted_assist_player = predictedAssistPlayer || "";
+      prediction.updated_at = now;
+    } else {
+      prediction = {
+        id: this.nextId("predictions"),
+        user_id: Number(userId),
+        match_id: Number(matchId),
+        home_score: homeScore,
+        away_score: awayScore,
+        predicted_goal_scorer: predictedGoalScorer || "",
+        predicted_assist_player: predictedAssistPlayer || "",
+        created_at: now,
+        updated_at: now
+      };
+      this.data.predictions.push(prediction);
+    }
+    this.save();
+    return normalizePrediction(prediction);
+  }
+
+  async getLeaderboard() {
+    const nonAdminUsers = this.data.users.filter((user) => user.role !== "admin");
+    const matchesById = new Map(this.data.matches.map((match) => [Number(match.id), match]));
+
+    return nonAdminUsers.map((user) => {
+      const userPredictions = this.data.predictions.filter((prediction) => Number(prediction.user_id) === Number(user.id));
+      let points = 0;
+      let exacts = 0;
+      let outcomes = 0;
+      let predictionsChecked = 0;
+
+      for (const prediction of userPredictions) {
+        const match = matchesById.get(Number(prediction.match_id));
+        if (!match || match.home_score === null || match.away_score === null) continue;
+        predictionsChecked += 1;
+        const earned = pointsForPrediction(prediction, match);
+        points += earned;
+        if (Number(prediction.home_score) === Number(match.home_score) && Number(prediction.away_score) === Number(match.away_score)) {
+          exacts += 1;
+        } else if (
+          resultSign(prediction.home_score, prediction.away_score) ===
+          resultSign(match.home_score, match.away_score)
+        ) {
+          outcomes += 1;
+        }
+      }
+
+      return {
+        id: Number(user.id),
+        name: user.name,
+        email: user.email,
+        points,
+        exacts,
+        outcomes,
+        predictions_checked: predictionsChecked,
+        total_predictions: userPredictions.length
+      };
+    }).sort(leaderboardSort);
+  }
 
   async listAllPredictionsDetailed() {
-  return this.data.predictions.map((prediction) => {
-    const user = this.data.users.find((u) => Number(u.id) === Number(prediction.user_id));
-    const match = this.data.matches.find((m) => Number(m.id) === Number(prediction.match_id));
-    return {
-      user_name: user?.name || "",
-      user_email: user?.email || "",
-      match_id: match ? Number(match.id) : null,
-      group_name: match?.group_name || "",
-      home_team: match?.home_team || "",
-      away_team: match?.away_team || "",
-      kickoff_at: match?.kickoff_at || "",
-      prediction_home_score: prediction.home_score,
-      prediction_away_score: prediction.away_score,
-      real_home_score: match?.home_score ?? null,
-      real_away_score: match?.away_score ?? null,
-      points: match ? pointsForPrediction(prediction, match) : null
-    };
-  }).sort((a, b) => new Date(a.kickoff_at) - new Date(b.kickoff_at) || a.user_name.localeCompare(b.user_name, "es"));
+    return this.data.predictions.map((prediction) => {
+      const user = this.data.users.find((u) => Number(u.id) === Number(prediction.user_id));
+      const match = this.data.matches.find((m) => Number(m.id) === Number(prediction.match_id));
+      return {
+        user_name: user?.name || "",
+        user_email: user?.email || "",
+        match_id: match ? Number(match.id) : null,
+        group_name: match?.group_name || "",
+        home_team: match?.home_team || "",
+        away_team: match?.away_team || "",
+        kickoff_at: match?.kickoff_at || "",
+        prediction_home_score: prediction.home_score,
+        prediction_away_score: prediction.away_score,
+        real_home_score: match?.home_score ?? null,
+        real_away_score: match?.away_score ?? null,
+        points: match ? pointsForPrediction(prediction, match) : null
+      };
+    }).sort((a, b) => new Date(a.kickoff_at) - new Date(b.kickoff_at) || a.user_name.localeCompare(b.user_name, "es"));
 
 
-}
+  }
   async getStatsSummary() {
-  const players = this.data.users.filter((user) => user.role !== "admin").length;
-  const totalMatches = this.data.matches.length;
-  const completedMatches = this.data.matches.filter((match) => match.home_score !== null && match.away_score !== null).length;
-  return {
-    players,
-    total_matches: totalMatches,
-    completed_matches: completedMatches,
-    total_predictions: this.data.predictions.length
-  };
-}
+    const players = this.data.users.filter((user) => user.role !== "admin").length;
+    const visibleMatches = this.data.matches.filter((match) => !match.deleted);
+
+    const totalMatches = visibleMatches.length;
+    const completedMatches = visibleMatches.filter(
+      (match) => match.home_score !== null && match.away_score !== null
+    ).length;
+
+    return {
+      players,
+      total_matches: totalMatches,
+      completed_matches: completedMatches,
+      total_predictions: this.data.predictions.length
+    };
+  }
 }
 
 class PgDatabase {
   constructor(appConfig) {
     this.appConfig = appConfig;
-    const isLocal = /localhost|127\.0\.0\.1/.test(appConfig.databaseUrl);
+    const isLocal = /localhost|127\.0\.0\.1/.test(appConfig.databaseUrl || "");
     const explicitSsl = appConfig.databaseSsl;
     let ssl = undefined;
     if (explicitSsl === "true") {
@@ -860,12 +865,13 @@ class PgDatabase {
   }
   async getStatsSummary() {
     const result = await this.pool.query(`
-      SELECT
-        (SELECT COUNT(*)::int FROM users WHERE role <> 'admin') AS players,
-        (SELECT COUNT(*)::int FROM matches) AS total_matches,
-        (SELECT COUNT(*)::int FROM matches WHERE home_score IS NOT NULL AND away_score IS NOT NULL) AS completed_matches,
-        (SELECT COUNT(*)::int FROM predictions) AS total_predictions
-    `);
+    SELECT
+      (SELECT COUNT(*)::int FROM users WHERE role <> 'admin') AS players,
+      (SELECT COUNT(*)::int FROM matches WHERE COALESCE(deleted, FALSE) = FALSE) AS total_matches,
+      (SELECT COUNT(*)::int FROM matches WHERE COALESCE(deleted, FALSE) = FALSE AND home_score IS NOT NULL AND away_score IS NOT NULL) AS completed_matches,
+      (SELECT COUNT(*)::int FROM predictions) AS total_predictions
+  `);
+
     return {
       players: Number(result.rows[0].players),
       total_matches: Number(result.rows[0].total_matches),
