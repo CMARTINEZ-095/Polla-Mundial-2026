@@ -3346,3 +3346,252 @@ button[type="submit"].danger,
 .tie-field input::placeholder {
   color: rgba(255, 255, 255, 0.45);
 }
+
+.admin-chip {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  color: #cbd5e1;
+  font-weight: 800;
+  font-size: .85rem;
+}
+
+.admin-match-info {
+  min-width: 260px;
+}
+
+.admin-match-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .95rem;
+}
+
+.admin-match-meta {
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+  color: #94a3b8;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.score-admin-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.score-admin-box input {
+  width: 48px;
+  height: 42px;
+  text-align: center;
+  border-radius: 12px;
+  font-weight: 900;
+}
+
+.edit-button {
+  background: #2563eb !important;
+  border: 1px solid #2563eb !important;
+  color: #ffffff !important;
+  font-weight: 900;
+}
+
+.edit-button:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+}
+
+.admin-result-tiebreak-form{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:nowrap;
+}
+
+.admin-tiebreak-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .82rem;
+  font-weight: 800;
+  color: #cbd5e1;
+}
+
+.admin-tiebreak-checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: #2563eb;
+}
+
+.tie-breaker-fields {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  display: flex;
+  gap: 10px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.tie-breaker-title {
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  font-size: .78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tie-breaker-fields label {
+  color: #cbd5e1;
+  font-size: .75rem;
+  font-weight: 800;
+}
+
+.tie-breaker-fields input {
+  width: 170px;
+  height: 38px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.admin-create-button{
+    width: 160px !important;
+    height: 44px !important;
+    min-height: 44px;
+    padding: 0 18px !important;
+
+    justify-self: start;
+    align-self: end;
+
+    font-size: 16px;
+    font-weight: 800;
+
+    border-radius: 999px;
+}
+
+.admin-create-button{
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 180px !important;
+    height: 46px !important;
+    margin-top: 18px;
+}
+
+.admin-create-actions{
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    margin-top: -8px;
+    padding-top: 0;
+}
+
+.admin-create-button{
+    width: 180px !important;
+    height: 46px !important;
+}
+
+.tie-break-toggle{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.toggle-title{
+    font-size:.85rem;
+    font-weight:800;
+    color:#cbd5e1;
+}
+
+.toggle-button input{
+    display:none;
+}
+
+.toggle-label{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    width:82px;
+    height:34px;
+
+    border-radius:999px;
+
+    background:#374151;
+
+    color:#fff;
+
+    font-weight:800;
+
+    font-size:.78rem;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.toggle-label::before{
+    content:"OFF";
+}
+
+.toggle-button input:checked + .toggle-label{
+    background:#facc15;
+    color:#111827;
+}
+
+.toggle-button input:checked + .toggle-label::before{
+    content:"ON ✓";
+}
+
+.tie-breaker-fields{
+  width: 260px !important;
+  padding: 10px 12px !important;
+  margin: 0 !important;
+  gap: 8px !important;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tie-breaker-title{
+  width: 100%;
+  font-size: 12px !important;
+  margin-bottom: 2px !important;
+}
+
+.tie-breaker-fields label{
+  width: 100%;
+  font-size: 12px !important;
+  margin: 0 !important;
+}
+
+.tie-breaker-fields input{
+  width: 100% !important;
+  height: 34px !important;
+  padding: 6px 10px !important;
+  font-size: 14px !important;
+}
+
+.save-icon{
+    background:#2563eb !important;
+    border:1px solid #2563eb !important;
+    color:#ffffff !important;
+    font-size:20px;
+    font-weight:900;
+}
+
+.save-icon:hover{
+    background:#1d4ed8 !important;
+    border-color:#1d4ed8 !important;
+}
+
+
+
+

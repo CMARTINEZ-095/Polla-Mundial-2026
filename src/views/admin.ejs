@@ -1,16 +1,10 @@
 <%- include('partials/header') %>
 
-  <div class="page-heading">
+  <div class="page-heading admin-heading">
     <div>
       <p class="eyebrow">Panel de administrador</p>
       <h1>Administración</h1>
       <p class="muted">Crea partidos, corrige calendario y registra resultados oficiales.</p>
-    </div>
-
-    <div class="actions-row">
-      <form action="/admin/sync-results" method="post" class="inline-form">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      </form>
     </div>
   </div>
 
@@ -46,26 +40,29 @@
 
   <section class="card admin-create-match-card">
     <div class="section-title">
-      <h2>Agregar partido</h2>
-      <span class="muted">Nuevo encuentro</span>
+      <div>
+        <h2>Agregar partido</h2>
+        <p class="muted">Crea un nuevo partido para la fase actual.</p>
+      </div>
+      <span class="admin-chip">Nuevo encuentro</span>
     </div>
 
     <form action="/admin/matches" method="post" class="admin-form admin-match-form">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
       <label>
-        Grupo
-        <input type="text" name="group_name" placeholder="Grupo A">
+        Fase / Grupo
+        <input type="text" name="group_name" placeholder="">
       </label>
 
       <label>
         Equipo local
-        <input type="text" name="home_team" required>
+        <input type="text" name="home_team" placeholder="" required>
       </label>
 
       <label>
         Equipo visitante
-        <input type="text" name="away_team" required>
+        <input type="text" name="away_team" placeholder="" required>
       </label>
 
       <label>
@@ -73,31 +70,22 @@
         <input type="datetime-local" name="kickoff_at" required>
       </label>
 
-      <label>
-        Estadio / sede
-        <input type="text" name="venue" placeholder="Opcional">
-      </label>
-
-      <label>
-        Goles local
-        <input type="number" min="0" max="30" name="home_score" placeholder="Resultado">
-      </label>
-
-      <label>
-        Goles visitante
-        <input type="number" min="0" max="30" name="away_score" placeholder="Resultado">
-      </label>
-
-      <button class="button primary admin-create-button" type="submit">
-        Crear partido
-      </button>
+      <div class="admin-create-actions">
+        <button class="button primary admin-create-button" type="submit">
+          Crear partido
+        </button>
+      </div>
     </form>
   </section>
 
   <section class="card table-card admin-matches-card">
     <div class="section-title">
-      <h2>Partidos cargados</h2>
-      <span class="muted">
+      <div>
+        <h2>Partidos cargados</h2>
+        <p class="muted">Administra resultados, desempates y edición de partidos.</p>
+      </div>
+
+      <span class="admin-chip">
         <%= matches.length %> partidos
       </span>
     </div>
@@ -107,8 +95,9 @@
         <thead>
           <tr>
             <th>Partido</th>
-            <th>Marcador oficial / desempate</th>
+            <th>Marcador oficial / Puntos extra</th>
             <th>Estado</th>
+            <th>Editar</th>
             <th>Eliminar</th>
           </tr>
         </thead>
@@ -130,17 +119,30 @@
               statusText = 'En vivo';
               statusClass = 'admin-status-live';
               }
+
+              const kickoffDate = match.kickoff_at
+              ? new Date(match.kickoff_at).toLocaleString('es-CO', {
+              timeZone: 'America/Bogota',
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+              })
+              : '';
               %>
 
-              <tr class="admin-match-row <%= rowColorClass %>">
-                <td>
-                  <strong>
-                    <%= match.home_team %>
-                  </strong>
-                  <span class="admin-vs">vs</span>
-                  <strong>
-                    <%= match.away_team %>
-                  </strong>
+                <td class="admin-match-info">
+                  <div class="admin-match-title">
+                    <strong>
+                      <%= match.home_team %>
+                    </strong>
+                    <span class="admin-vs">vs</span>
+                    <strong>
+                      <%= match.away_team %>
+                    </strong>
+                  </div>
+                </td>
                 </td>
 
                 <td>
@@ -148,37 +150,52 @@
                     class="inline-result-form admin-result-tiebreak-form">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
-                    <input type="number" min="0" max="30" name="home_score"
-                      value="<%= match.home_score !== null ? match.home_score : '' %>" placeholder="-">
+                    <div class="score-admin-box">
+                      <input type="number" min="0" max="30" name="home_score"
+                        value="<%= match.home_score !== null ? match.home_score : '' %>" placeholder="-">
 
-                    <span class="admin-vs">-</span>
+                      <span class="admin-vs">-</span>
 
-                    <input type="number" min="0" max="30" name="away_score"
-                      value="<%= match.away_score !== null ? match.away_score : '' %>" placeholder="-">
+                      <input type="number" min="0" max="30" name="away_score"
+                        value="<%= match.away_score !== null ? match.away_score : '' %>" placeholder="-">
+                    </div>
 
-                    <label class="admin-tiebreak-checkbox">
-                      <input type="checkbox" name="tie_breaker_enabled" class="tie-breaker-checkbox"
-                        <%=match.tie_breaker_enabled ? 'checked' : '' %>
-                      >
-                      Desempate
-                    </label>
+                    <div class="tie-break-toggle">
+
+                      <span class="toggle-title">
+                        Puntos extra
+                      </span>
+
+                      <label class="toggle-button">
+
+                        <input type="checkbox" name="tie_breaker_enabled" class="tie-breaker-checkbox"
+                          <%=match.tie_breaker_enabled ? 'checked' : '' %>
+                        >
+
+                        <span class="toggle-label"></span>
+
+                      </label>
+
+                    </div>
 
                     <div class="tie-breaker-fields" style="display:none;">
+                      <div class="tie-breaker-title">Puntos extra</div>
+
                       <label>
                         Goleador
-                        <input type="text" name="goal_scorer" placeholder="Ej: Luis Díaz"
+                        <input type="text" name="goal_scorer" placeholder=""
                           value="<%= match.goal_scorer || '' %>">
                       </label>
 
                       <label>
                         Asistidor
-                        <input type="text" name="assist_player" placeholder="Ej: James Rodríguez"
+                        <input type="text" name="assist_player" placeholder=""
                           value="<%= match.assist_player || '' %>">
                       </label>
                     </div>
 
-                    <button class="button tiny primary" type="submit">
-                      Guardar
+                    <button class="button tiny icon-btn save-icon" type="submit" title="Guardar">
+                      💾
                     </button>
                   </form>
                 </td>
@@ -190,11 +207,18 @@
                 </td>
 
                 <td>
+                  <a href="/admin/matches/<%= match.id %>/edit" class="button tiny icon-btn edit-button" title="Editar">
+                    ⚙️
+                  </a>
+                </td>
+
+                <td>
                   <form action="/admin/matches/<%= match.id %>/delete" method="post"
-                    onsubmit="return confirm('¿Seguro que deseas eliminar este partido? También se pueden eliminar sus pronósticos asociados.');">
+                    onsubmit="return confirm('¿Seguro que deseas eliminar este partido?');">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button class="button tiny danger" type="submit">
-                      Eliminar
+
+                    <button class="button tiny icon-btn danger delete-icon" type="submit" title="Eliminar">
+                      🗑️
                     </button>
                   </form>
                 </td>
@@ -212,58 +236,12 @@
       const fields = form.querySelector(".tie-breaker-fields");
 
       function toggleFields() {
-        fields.style.display = checkbox.checked ? "block" : "none";
+        fields.style.display = checkbox.checked ? "flex" : "none";
       }
 
       checkbox.addEventListener("change", toggleFields);
       toggleFields();
     });
   </script>
-
-  <style>
-    .admin-result-tiebreak-form {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .admin-tiebreak-checkbox {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #cbd5e1;
-    }
-
-    .admin-tiebreak-checkbox input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: #2563eb;
-    }
-
-    .tie-breaker-fields {
-      display: flex !important;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-      width: 100%;
-      margin-top: 8px;
-    }
-
-    .tie-breaker-fields[style*="none"] {
-      display: none !important;
-    }
-
-    .tie-breaker-fields label {
-      font-size: 0.75rem;
-      color: #cbd5e1;
-    }
-
-    .tie-breaker-fields input {
-      width: 160px;
-    }
-  </style>
 
   <%- include('partials/footer') %>

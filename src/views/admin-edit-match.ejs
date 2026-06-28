@@ -15,7 +15,7 @@
     <form action="/admin/matches/<%= match.id %>" method="post" class="admin-form">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <label>
-        Grupo
+        Fase / Grupo
         <input type="text" name="group_name" value="<%= match.group_name || '' %>">
       </label>
       <label>
@@ -31,20 +31,7 @@
         <input type="datetime-local" name="kickoff_at" required
           value="<%= helpers.toBogotaDateTimeLocal(match.kickoff_at) %>">
       </label>
-      <label>
-        Estadio / sede
-        <input type="text" name="venue" value="<%= match.venue || '' %>">
-      </label>
-      <label>
-        Goles local
-        <input type="number" min="0" max="30" name="home_score"
-          value="<%= match.home_score === null ? '' : match.home_score %>">
-      </label>
-      <label>
-        Goles visitante
-        <input type="number" min="0" max="30" name="away_score"
-          value="<%= match.away_score === null ? '' : match.away_score %>">
-      </label>
+
       <label>
         Estado
         <select name="status">
@@ -52,10 +39,23 @@
           <option value="finished" <%=match.status==='finished' ? 'selected' : '' %>>Finalizado</option>
         </select>
       </label>
-      <label class="checkbox">
-        <input type="checkbox" name="tie_breaker_enabled" <%=match.tie_breaker_enabled ? "checked" : "" %>>
-        Activar desempate para este partido
-      </label>
+      <div class="tie-break-toggle">
+
+        <span class="toggle-title">
+          Puntos extra
+        </span>
+
+        <label class="toggle-button">
+
+          <input type="checkbox" name="tie_breaker_enabled" class="tie-breaker-checkbox" <%=match.tie_breaker_enabled
+            ? "checked" : "" %>
+          >
+
+          <span class="toggle-label"></span>
+
+        </label>
+
+      </div>
 
       <div id="tieBreakerFields">
 
@@ -85,15 +85,15 @@
   </section>
 
   <script>
-const checkbox = document.querySelector('input[name="tie_breaker_enabled"]');
-const fields = document.getElementById("tieBreakerFields");
+    const checkbox = document.querySelector('input[name="tie_breaker_enabled"]');
+    const fields = document.getElementById("tieBreakerFields");
 
-function toggleTieBreakerFields() {
-    fields.style.display = checkbox.checked ? "block" : "none";
-}
+    function toggleTieBreakerFields() {
+      fields.style.display = checkbox.checked ? "block" : "none";
+    }
 
-checkbox.addEventListener("change", toggleTieBreakerFields);
-toggleTieBreakerFields();
-</script>
+    checkbox.addEventListener("change", toggleTieBreakerFields);
+    toggleTieBreakerFields();
+  </script>
 
   <%- include('partials/footer') %>
