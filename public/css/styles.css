@@ -1982,7 +1982,7 @@ td strong {
   align-items: center;
   justify-content: center;
   font-weight: 900;
-  color: #fff;
+  color: #000000;
 }
 
 .points-0 {
@@ -3597,5 +3597,9 @@ button[type="submit"].danger,
   color: #111827 !important;
 }
 
-
+.points-positive{
+    background:#22c55e;
+    color:#000 !important;
+    font-weight:700;
+}
 
