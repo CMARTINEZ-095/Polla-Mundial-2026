@@ -114,15 +114,18 @@
               <div class="points-result-card">
                 <span class="info-title">Puntos obtenidos</span>
 
-                <% if (prediction && item.points !==null) { %>
-                  <span class="points-badge <%= item.points > 0 ? 'points-positive' : 'points-zero' %>">
+                <% if (prediction && item.points !==null) { let pointsClass="points-zero" ; if (item.points===1) {
+                  pointsClass="points-one" ; } else if (item.points>= 3) {
+                  pointsClass = "points-positive";
+                  }
+                  %>
+                  <span class="points-badge <%= pointsClass %>">
                     <%= item.points %>
                   </span>
                   <% } else { %>
                     <span class="points-badge pending">-</span>
                     <% } %>
               </div>
-
             </div>
 
           </article>

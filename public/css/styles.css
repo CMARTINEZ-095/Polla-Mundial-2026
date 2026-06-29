@@ -3592,7 +3592,10 @@ button[type="submit"].danger,
     border-color:#1d4ed8 !important;
 }
 
-
+.points-one {
+  background: #facc15 !important;
+  color: #111827 !important;
+}
 
 
 
