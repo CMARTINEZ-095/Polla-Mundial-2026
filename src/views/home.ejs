@@ -63,7 +63,7 @@
       <ol class="ranking-list">
         <% topPlayers.forEach((player) => { %>
           <li>
-            <span><%= player.name %></span>
+            <span><%= formatDisplayName(player.name) %></span>
             <strong><%= player.points %> pts</strong>
           </li>
         <% }) %>

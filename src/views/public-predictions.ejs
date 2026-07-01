@@ -76,12 +76,12 @@
                                     <% predictions.forEach((item)=> { %>
 
                                         <article class="community-prediction-card public-style-card"
-                                            data-search-name="<%= String(item.user_name || '').toLowerCase() %>">
+                                            data-search-name="<%= String(formatDisplayName(item.user_name)).toLowerCase() %>">
 
                                             <div class="public-player-name">
                                                 <span>Participante</span>
                                                 <strong>
-                                                    <%= item.user_name || "Sin nombre" %>
+                                                    <%= formatDisplayName(item.user_name) %>
                                                 </strong>
                                             </div>
 

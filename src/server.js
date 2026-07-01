@@ -19,6 +19,7 @@ const {
   formatTime,
   formatDateGroup,
   toBogotaDateTimeLocal,
+  formatDisplayName,
   isMatchLocked,
   matchResultLabel,
   pointsForPrediction,
@@ -55,8 +56,10 @@ app.locals.helpers = {
   formatTime: (value) => formatTime(value, config.timezone),
   formatDateGroup: (value) => formatDateGroup(value, config.timezone),
   toBogotaDateTimeLocal: (value) => toBogotaDateTimeLocal(value, config.timezone),
+  formatDisplayName: (value) => formatDisplayName(value),
   matchResultLabel
 };
+app.locals.formatDisplayName = (value) => formatDisplayName(value);
 
 function flash(req, type, message) {
   req.session.flash = { type, message };
@@ -71,6 +74,8 @@ app.use((req, res, next) => {
     req.session.csrfToken = crypto.randomBytes(32).toString("hex");
   }
   res.locals.csrfToken = req.session.csrfToken;
+  res.locals.helpers = app.locals.helpers || {};
+  res.locals.formatDisplayName = app.locals.formatDisplayName || res.locals.helpers.formatDisplayName;
 
   if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) {
     const submittedToken = req.body ? req.body._csrf : null;
@@ -499,6 +504,25 @@ app.get("/admin/users", requireAdmin, async (req, res, next) => {
   try {
     const users = await db.listUsers();
     res.render("admin-users", { title: "Usuarios", users });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/admin/users/:id/delete", requireAdmin, async (req, res, next) => {
+  flash(req, "warning", "Usa el boton de eliminar en la lista de usuarios para borrar un participante.");
+  res.redirect("/admin/users");
+});
+
+app.post("/admin/users/:id/delete", requireAdmin, async (req, res, next) => {
+  try {
+    const deleted = await db.deleteUser(req.params.id);
+    if (!deleted) {
+      flash(req, "danger", "Usuario no encontrado o no se puede eliminar.");
+      return res.redirect("/admin/users");
+    }
+    flash(req, "success", "Usuario eliminado correctamente.");
+    res.redirect("/admin/users");
   } catch (error) {
     next(error);
   }

@@ -3,7 +3,7 @@
 <div class="page-heading">
   <div>
     <p class="eyebrow">Administrador</p>
-    <h1>Pronósticos de <%= user.name %></h1>
+    <h1>Pronósticos de <%= formatDisplayName(user.name) %></h1>
     <p class="muted"><%= user.email %> · <%= totalPredictions %> pronósticos registrados</p>
   </div>
   <a class="button secondary" href="/admin/users">Volver a usuarios</a>

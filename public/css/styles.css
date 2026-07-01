@@ -877,29 +877,23 @@ td strong {
     overflow-x: visible;
   }
 
-  .public-predictions-table,
-  .admin-predictions-table {
+  .public-predictions-table {
     display: block;
     width: 100%;
   }
 
-  .public-predictions-table thead,
-  .admin-predictions-table thead {
+  .public-predictions-table thead {
     display: none;
   }
 
   .public-predictions-table tbody,
   .public-predictions-table tr,
-  .public-predictions-table td,
-  .admin-predictions-table tbody,
-  .admin-predictions-table tr,
-  .admin-predictions-table td {
+  .public-predictions-table td {
     display: block;
     width: 100%;
   }
 
-  .public-predictions-table tr,
-  .admin-predictions-table tr {
+  .public-predictions-table tr {
     margin-bottom: 18px;
     padding: 16px;
     border: 1px solid rgba(255, 255, 255, .12);
@@ -908,8 +902,7 @@ td strong {
     box-shadow: 0 8px 18px rgba(0, 0, 0, .18);
   }
 
-  .public-predictions-table td,
-  .admin-predictions-table td {
+  .public-predictions-table td {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -918,14 +911,48 @@ td strong {
     border: none;
   }
 
-  .public-predictions-table td::before,
-  .admin-predictions-table td::before {
+  .public-predictions-table td::before {
     content: attr(data-label);
     color: var(--accent);
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: .08em;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-predictions-table {
+    display: table !important;
+    width: 100% !important;
+  }
+
+  .admin-predictions-table thead {
+    display: table-header-group !important;
+  }
+
+  .admin-predictions-table tbody {
+    display: table-row-group !important;
+    width: auto !important;
+  }
+
+  .admin-predictions-table tr {
+    display: table-row !important;
+    width: auto !important;
+  }
+
+  .admin-predictions-table td {
+    display: table-cell !important;
+    width: auto !important;
+    padding: 12px 10px !important;
+  }
+
+  .admin-predictions-table td::before {
+    content: none !important;
+  }
+
+  .table-wrap {
+    overflow-x: auto !important;
   }
 }
 
@@ -3601,5 +3628,24 @@ button[type="submit"].danger,
     background:#22c55e;
     color:#000 !important;
     font-weight:700;
+}
+
+.score-with-teams {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.score-team-name {
+  font-weight: 900;
+  color: #f8fafc;
+  font-size: 0.95rem;
+}
+
+.score-with-teams input {
+  width: 48px !important;
+  height: 42px !important;
+  text-align: center;
 }
 

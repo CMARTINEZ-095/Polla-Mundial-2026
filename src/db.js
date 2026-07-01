@@ -338,6 +338,24 @@ class JsonDatabase {
     return true;
   }
 
+  async deleteUser(id) {
+    const user = this.data.users.find((item) => Number(item.id) === Number(id));
+    if (!user || user.role === "admin") {
+      return false;
+    }
+
+    this.data.users = this.data.users.filter(
+      (item) => Number(item.id) !== Number(id)
+    );
+
+    this.data.predictions = this.data.predictions.filter(
+      (prediction) => Number(prediction.user_id) !== Number(id)
+    );
+
+    this.save();
+    return true;
+  }
+
   async listPredictionsByUser(userId) {
     return this.data.predictions
       .filter((prediction) => Number(prediction.user_id) === Number(userId))
@@ -622,6 +640,17 @@ class PgDatabase {
     const result = await this.pool.query("UPDATE users SET password_hash = $1 WHERE id = $2 RETURNING *", [passwordHash, userId]);
     if (!result.rows[0]) throw new Error("Usuario no encontrado.");
     return normalizeUser(result.rows[0]);
+  }
+
+  async deleteUser(id) {
+    const result = await this.pool.query("SELECT id, role FROM users WHERE id = $1", [id]);
+    const user = result.rows[0];
+    if (!user || user.role === "admin") {
+      return false;
+    }
+
+    await this.pool.query("DELETE FROM users WHERE id = $1", [id]);
+    return true;
   }
 
   async listMatches() {

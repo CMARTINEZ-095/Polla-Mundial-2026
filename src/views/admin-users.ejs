@@ -18,13 +18,14 @@
             <th>Rol</th>
             <th>Creado</th>
             <th>Clave</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           <% users.forEach((user)=> { %>
             <tr>
               <td>
-                <%= user.name %>
+                <%= formatDisplayName(user.name) %>
               </td>
               <td>
                 <%= user.email %>
@@ -38,11 +39,19 @@
               <td class="password-cell">
                 <form action="/admin/users/<%= user.id %>/password" method="post" class="user-password-form">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <label class="sr-only" for="new-password-<%= user.id %>">Nueva clave para <%= user.name %></label>
+                  <label class="sr-only" for="new-password-<%= user.id %>">Nueva clave para <%= formatDisplayName(user.name) %></label>
                   <input id="new-password-<%= user.id %>" type="password" name="new_password" minlength="6"
                     autocomplete="new-password" placeholder="Nueva clave" required>
                   <button class="button tiny primary" type="submit">Guardar clave</button>
                 </form>
+              </td>
+              <td>
+                <% if (user.role !== 'admin') { %>
+                  <form action="/admin/users/<%= user.id %>/delete" method="post" class="user-delete-form" onsubmit="return confirm('¿Eliminar este participante y sus pronósticos?');">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="button tiny danger" type="submit">Eliminar</button>
+                  </form>
+                <% } %>
               </td>
             </tr>
             <% }) %>

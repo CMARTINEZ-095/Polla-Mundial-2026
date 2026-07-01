@@ -14,6 +14,15 @@ function normalizePlayerName(value) {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+function formatDisplayName(value) {
+  const raw = String(value || "").trim();
+  if (!raw) {
+    return "Sin nombre";
+  }
+  const firstName = raw.split(/\s+/)[0];
+  return firstName.charAt(0).toLocaleUpperCase() + firstName.slice(1).toLocaleLowerCase();
+}
+
 function parseNonNegativeInt(value, fieldName = "valor") {
   if (value === undefined || value === null || value === "") {
     return null;
@@ -171,6 +180,7 @@ module.exports = {
   normalizeEmail,
   cleanText,
   normalizePlayerName,
+  formatDisplayName,
   parseNonNegativeInt,
   parsePredictionScores,
   parseKickoffFromBogotaInput,
