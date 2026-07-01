@@ -209,9 +209,12 @@ body::before {
 }
 
 .hero-actions .button {
-  min-height: 38px;
-  padding: 0 14px;
-  font-size: 0.95rem;
+  min-height: 46px;
+  padding: 0 20px;
+  font-size: 1rem;
+  font-weight: 900;
+  justify-content: center;
+  text-align: center;
 }
 
 .button {
@@ -848,6 +851,14 @@ td strong {
     max-width: 100%;
     display: inline-flex;
     justify-content: flex-start;
+    padding-left: 14px;
+  }
+
+  .main-nav a.nav-cta,
+  .main-nav a.nav-login {
+    justify-content: center;
+    text-align: center;
+    padding-left: 0;
   }
 
   .hero,

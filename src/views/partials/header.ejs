@@ -28,31 +28,41 @@
         onclick="document.body.classList.toggle('nav-open')">☰</button>
 
       <nav class="main-nav">
-        <% if (!currentUser || currentUser.role !=='admin' ) { %>
+
+        <% if (currentUser && currentUser.role !=='admin' ) { %>
+
           <a href="/predictions">⚽ Mis pronósticos</a>
-          <% if (currentUser) { %>
-            <a href="/public-predictions">👥 Pronósticos de la comunidad</a>
+          <a href="/public-predictions">👥 Pronósticos de la comunidad</a>
+          <a href="/leaderboard">🏆 Tabla</a>
+
           <% } %>
 
-          <a href="/leaderboard">🏆 Tabla</a>
-        <% } %>
-                
-                <% if (currentUser && currentUser.role==='admin' ) { %>
-                  <a href="/admin">⚙️ CRUD</a>
-                  <a href="/admin/users">👥 Usuarios</a>
-                  <a href="/admin/predictions">📊 Consultar pronósticos</a>
-                  <% } %>
 
-                    <% if (currentUser) { %>
-                      <a href="/account">👤 Mi cuenta</a>
-                      <form class="logout-form" action="/logout" method="post">
-                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                        <button type="submit">🚪Salir</button>
-                      </form>
-                      <% } else { %>
-                        <a class="nav-cta nav-login" href="/login">Ingresar</a>
-                        <a class="nav-cta" href="/register">Registrarme</a>
-                        <% } %>
+            <% if (currentUser && currentUser.role==='admin' ) { %>
+
+              <a href="/admin">⚙️ CRUD</a>
+              <a href="/admin/users">👥 Usuarios</a>
+              <a href="/admin/predictions">📊 Consultar pronósticos</a>
+
+              <% } %>
+
+
+                <% if (currentUser) { %>
+
+                  <a href="/account">👤 Mi cuenta</a>
+
+                  <form class="logout-form" action="/logout" method="post">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="submit">🚪 Salir</button>
+                  </form>
+
+                  <% } else { %>
+
+                    <a class="nav-cta nav-login" href="/login">Ingresar</a>
+                    <a class="nav-cta" href="/register">Registrarme</a>
+
+                    <% } %>
+
       </nav>
     </div>
   </header>
