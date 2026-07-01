@@ -3755,3 +3755,347 @@ button[type="submit"].danger,
   cursor: pointer;
 }
 
+.users-admin-card {
+  padding: 28px 36px 34px;
+  border-radius: 26px;
+  background: linear-gradient(145deg, rgba(10, 23, 39, .97), rgba(4, 18, 35, .98));
+  border: 1px solid rgba(140, 165, 200, .28);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .45);
+}
+
+.users-card-header {
+  padding-bottom: 22px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(180, 195, 215, .18);
+}
+
+.users-card-header h2 {
+  display: inline-block;
+  margin: 0 14px 0 0;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.users-count {
+  display: inline-flex;
+  padding: 9px 16px;
+  border-radius: 999px;
+  color: #c9d3e4;
+  border: 1px solid rgba(180, 195, 215, .22);
+  background: rgba(7, 18, 33, .7);
+  font-weight: 800;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th {
+  color: #ffd733;
+  text-align: left;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 1px;
+  padding: 20px 14px;
+}
+
+.users-table td {
+  padding: 18px 14px;
+  color: #e9eef8;
+  font-size: 17px;
+  border-top: 1px solid rgba(180, 195, 215, .18);
+  vertical-align: middle;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4b6bff, #7a5cff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-weight: 900;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.user-email {
+  color: #cfd8e7;
+  font-weight: 700;
+}
+
+.user-password-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+}
+
+.new-password-input {
+  width: 260px;
+  height: 46px;
+  border-radius: 16px;
+  background: #071426;
+  border: 1px solid rgba(255,255,255,.12);
+  color: white;
+  padding: 0 18px;
+  font-size: 15px;
+  font-weight: 700;
+  outline: none;
+}
+
+.new-password-input::placeholder {
+  color: #8d97a7;
+}
+
+.new-password-input:focus {
+  border-color: #ffd43b;
+  box-shadow: 0 0 0 3px rgba(255,212,59,.15);
+}
+
+.btn-save-password {
+  width: 120px;
+  height: 46px;
+  border: none;
+  border-radius: 999px;
+  background: #ffd23c;
+  color: #111;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.user-delete-form {
+  margin: 0;
+}
+
+.btn-delete-user {
+  width: 135px;
+  height: 46px;
+  border-radius: 999px;
+  border: 2px solid #ff4d5f;
+  background: transparent;
+  color: #ff4d5f;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.btn-save-password:hover,
+.btn-delete-user:hover {
+  transform: translateY(-1px);
+}
+
+.btn-delete-user:hover {
+  background: #ff4d5f;
+  color: white;
+}
+
+@media (max-width: 900px) {
+  .users-admin-card {
+    padding: 22px 18px;
+    overflow-x: auto;
+  }
+
+  .users-table {
+    min-width: 850px;
+  }
+}
+
+.users-admin-card {
+  padding: 40px 48px;
+  border-radius: 26px;
+  background: linear-gradient(145deg, rgba(10, 23, 39, .97), rgba(4, 18, 35, .98));
+  border: 1px solid rgba(140, 165, 200, .28);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .45);
+}
+
+.users-card-header {
+  padding-bottom: 22px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(180, 195, 215, .18);
+}
+
+.users-card-header h2 {
+  display: inline-block;
+  margin: 0 14px 0 0;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.users-count {
+  display: inline-flex;
+  padding: 9px 16px;
+  border-radius: 999px;
+  color: #c9d3e4;
+  border: 1px solid rgba(180, 195, 215, .22);
+  background: rgba(7, 18, 33, .7);
+  font-weight: 800;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table th {
+  color: #ffd733;
+  text-align: left;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 1px;
+  padding: 22px 14px;
+}
+
+.users-table td {
+  padding: 22px 14px;
+  color: #e9eef8;
+  font-size: 17px;
+  border-top: 1px solid rgba(180, 195, 215, .18);
+  vertical-align: middle;
+}
+
+.users-table th:nth-child(2),
+.users-table td:nth-child(2) {
+  padding-right: 65px;
+}
+
+.users-table th:nth-child(3),
+.users-table td:nth-child(3) {
+  padding-left: 35px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4b6bff, #7a5cff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.user-email {
+  color: #cfd8e7;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.user-password-form {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin: 0;
+}
+
+.new-password-input {
+  width: 260px;
+  height: 46px;
+  border-radius: 16px;
+  background: #071426;
+  border: 1px solid rgba(255, 255, 255, .12);
+  color: white;
+  padding: 0 18px;
+  font-size: 15px;
+  font-weight: 700;
+  outline: none;
+}
+
+.new-password-input::placeholder {
+  color: #8d97a7;
+}
+
+.new-password-input:focus {
+  border-color: #ffd43b;
+  box-shadow: 0 0 0 3px rgba(255, 212, 59, .15);
+}
+
+.btn-save-password {
+  width: 110px;
+  height: 44px;
+  border: none;
+  border-radius: 999px;
+  background: #ffd23c;
+  color: #111;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.user-delete-form {
+  margin: 0;
+}
+
+.btn-delete-user {
+  width: 135px;
+  height: 44px;
+  border-radius: 999px;
+  border: 2px solid #ff4d5f;
+  background: transparent;
+  color: #ff4d5f;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.btn-save-password:hover,
+.btn-delete-user:hover {
+  transform: translateY(-1px);
+}
+
+.btn-delete-user:hover {
+  background: #ff4d5f;
+  color: white;
+}
+
+@media (max-width: 900px) {
+  .users-admin-card {
+    padding: 22px 18px;
+    overflow-x: auto;
+  }
+
+  .users-table {
+    min-width: 850px;
+  }
+}
+
+.new-password-input {
+  width: 180px;      /* Antes 260px */
+  height: 44px;
+  border-radius: 14px;
+  background: #071426;
+  border: 1px solid rgba(255, 255, 255, .12);
+  color: #fff;
+  padding: 0 16px;
+  font-size: 15px;
+  font-weight: 700;
+  outline: none;
+  transition: .2s;
+}
+
+.new-password-input::placeholder {
+  color: #8d97a7;
+}
+
+.new-password-input:focus {
+  border-color: #ffd43b;
+  box-shadow: 0 0 0 3px rgba(255, 212, 59, .15);
+}

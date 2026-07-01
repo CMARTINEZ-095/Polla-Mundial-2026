@@ -1,63 +1,91 @@
 <%- include('partials/header') %>
 
-  <div class="page-heading">
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">Panel de administrador</p>
+    <h1>Usuarios registrados</h1>
+    <p class="muted">Desde aquí puedes restablecer o generar una clave temporal para cualquier usuario.</p>
+  </div>
+</div>
+
+<section class="card users-admin-card">
+
+  <div class="users-card-header">
     <div>
-      <p class="eyebrow">Administrador</p>
-      <h1>Usuarios registrados</h1>
-      <p class="muted">Desde aquí puedes restablecer o generar una clave temporal para cualquier usuario.</p>
+      <h2>Usuarios registrados</h2>
+      <span class="users-count"><%= users.length %> usuarios</span>
     </div>
   </div>
 
-  <section class="card table-card">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Rol</th>
-            <th>Creado</th>
-            <th>Clave</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% users.forEach((user)=> { %>
-            <tr>
-              <td>
-                <%= formatDisplayName(user.name) %>
-              </td>
-              <td>
-                <%= user.email %>
-              </td>
-              <td>
-                <%= user.role==='admin' ? 'Administrador' : 'Participante' %>
-              </td>
-              <td>
-                <%= helpers.formatDateTime(user.created_at) %>
-              </td>
-              <td class="password-cell">
-                <form action="/admin/users/<%= user.id %>/password" method="post" class="user-password-form">
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <label class="sr-only" for="new-password-<%= user.id %>">Nueva clave para <%= formatDisplayName(user.name) %></label>
-                  <input id="new-password-<%= user.id %>" type="password" name="new_password" minlength="6"
-                    autocomplete="new-password" placeholder="Nueva clave" required>
-                  <button class="button tiny primary" type="submit">Guardar clave</button>
-                </form>
-              </td>
-              <td>
-                <% if (user.role !== 'admin') { %>
-                  <form action="/admin/users/<%= user.id %>/delete" method="post" class="user-delete-form" onsubmit="return confirm('¿Eliminar este participante y sus pronósticos?');">
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button class="button tiny danger" type="submit">Eliminar</button>
-                  </form>
-                <% } %>
-              </td>
-            </tr>
-            <% }) %>
-        </tbody>
-      </table>
-    </div>
-  </section>
+  <div class="table-wrap">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Nueva clave</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
 
-  <%- include('partials/footer') %>
+      <tbody>
+        <% users.forEach((user)=> { %>
+          <tr>
+            <td>
+              <div class="user-info">
+                <div class="user-avatar">
+                  <%= formatDisplayName(user.name).charAt(0).toUpperCase() %>
+                </div>
+                <strong><%= formatDisplayName(user.name) %></strong>
+              </div>
+            </td>
+
+            <td class="user-email">
+              <%= user.email %>
+            </td>
+
+            <td>
+              <form action="/admin/users/<%= user.id %>/password" method="post" class="user-password-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                <input 
+                  type="password" 
+                  name="new_password" 
+                  minlength="6"
+                  autocomplete="new-password"
+                  placeholder="Nueva clave"
+                  required
+                  class="new-password-input"
+                >
+
+                <button class="btn-save-password" type="submit">
+                  Guardar
+                </button>
+              </form>
+            </td>
+
+            <td>
+              <% if (user.role !== 'admin') { %>
+                <form 
+                  action="/admin/users/<%= user.id %>/delete" 
+                  method="post" 
+                  class="user-delete-form" 
+                  onsubmit="return confirm('¿Eliminar este participante y sus pronósticos?');"
+                >
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                  <button class="btn-delete-user" type="submit">
+                    🗑 Eliminar
+                  </button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+</section>
+
+<%- include('partials/footer') %>

@@ -39,22 +39,22 @@
 
 
             <% if (currentUser && currentUser.role==='admin' ) { %>
-              <a href="/leaderboard">🏆 Tabla</a>
-              <a href="/admin">⚙️ CRUD</a>
-              <a href="/admin/users">👥 Usuarios</a>
-              <a href="/admin/predictions">📊 Consultar</a>
-              <a href="/predictions">⚽ Mis pronósticos</a>
+              <a href="/leaderboard">🏆Tabla</a>
+              <a href="/admin">⚙️CRUD</a>
+              <a href="/admin/users">👥Usuarios</a>
+              <a href="/admin/predictions">📊Consultar PR</a>
+              <a href="/predictions">⚽Mis PR</a>
 
               <% } %>
 
 
                 <% if (currentUser) { %>
 
-                  <a href="/account">👤 Mi cuenta</a>
+                  <a href="/account">👤Cuenta</a>
 
                   <form class="logout-form" action="/logout" method="post">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="submit">🚪 Salir</button>
+                    <button type="submit">🚪Salir</button>
                   </form>
 
                   <% } else { %>
