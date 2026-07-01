@@ -5,12 +5,12 @@
     <p class="eyebrow">Mundial FIFA 2026</p>
     <h1>Organiza la polla, registra marcadores y mira la tabla en vivo.</h1>
     <p class="hero-text">Cada participante pronostica el marcador de cada partido antes de que empiece. Si acierta el marcador exacto, suma 3 puntos.</p>
-    <div class="hero-actions">
+    <div class="hero-actions<% if (!currentUser) { %> split<% } %>">
       <% if (currentUser) { %>
         <a class="button primary" href="/predictions">Registrar mis pronósticos</a>
       <% } else { %>
+        <a class="button green" href="/login">Ya tengo cuenta</a>
         <a class="button primary" href="/register">Crear mi cuenta</a>
-        <a class="button secondary" href="/login">Ya tengo cuenta</a>
       <% } %>
     </div>
   </div>

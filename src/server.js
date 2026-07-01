@@ -263,7 +263,10 @@ app.post("/register", async (req, res, next) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("login", { title: "Ingresar", nextUrl: req.query.next || "" });
+  res.render("login", {
+    title: "Ingresar",
+    nextUrl: req.query.next || "",
+  });
 });
 
 app.post("/login", async (req, res, next) => {
@@ -276,7 +279,10 @@ app.post("/login", async (req, res, next) => {
 
     if (!ok) {
       flash(req, "danger", "Correo o clave incorrectos.");
-      return res.status(401).render("login", { title: "Ingresar", nextUrl });
+      return res.status(401).render("login", {
+        title: "Ingresar",
+        nextUrl,
+      });
     }
 
     req.session.userId = user.id;

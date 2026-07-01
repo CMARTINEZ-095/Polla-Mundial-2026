@@ -32,10 +32,10 @@
           <a href="/predictions">⚽ Mis pronósticos</a>
           <% if (currentUser) { %>
             <a href="/public-predictions">👥 Pronósticos de la comunidad</a>
-            <% } %>
-              <% } %>
+          <% } %>
 
-                <a href="/leaderboard">🏆 Tabla</a>
+          <a href="/leaderboard">🏆 Tabla</a>
+        <% } %>
                 
                 <% if (currentUser && currentUser.role==='admin' ) { %>
                   <a href="/admin">⚙️ CRUD</a>

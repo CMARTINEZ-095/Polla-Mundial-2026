@@ -199,6 +199,19 @@ body::before {
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
+  justify-content: center;
+  width: auto;
+  margin: 0 auto;
+}
+
+.hero-actions.split {
+  justify-content: center;
+}
+
+.hero-actions .button {
+  min-height: 38px;
+  padding: 0 14px;
+  font-size: 0.95rem;
 }
 
 .button {
@@ -230,6 +243,11 @@ body::before {
   color: var(--text);
   background: rgba(255, 255, 255, 0.08);
   border-color: var(--line);
+}
+
+.button.green {
+  color: #092414;
+  background: var(--accent-2);
 }
 
 .button.danger {
@@ -366,8 +384,10 @@ body::before {
 }
 
 .alert-success {
-  border-color: rgba(55, 214, 122, 0.45);
-  background: rgba(55, 214, 122, 0.12);
+  border-color: rgba(4, 50, 128, 1);
+  background: rgba(3, 30, 80, 0.82);
+  color: #ffffff;
+  box-shadow: 0 12px 35px rgba(3, 30, 80, 0.32);
 }
 
 .alert-danger {
@@ -808,7 +828,7 @@ td strong {
     right: 16px;
     display: none;
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
     padding: 14px;
     border-radius: 18px;
     background: #0b1c3d;
@@ -824,6 +844,10 @@ td strong {
   .logout-form button {
     width: 100%;
     text-align: left;
+    min-width: 0;
+    max-width: 100%;
+    display: inline-flex;
+    justify-content: flex-start;
   }
 
   .hero,
