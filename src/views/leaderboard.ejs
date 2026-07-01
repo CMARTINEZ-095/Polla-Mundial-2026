@@ -37,7 +37,17 @@
               </tr>
             </thead>
             <tbody>
-              <% leaderboard.forEach((player, index)=> { %>
+              <% leaderboard.forEach((player, index)=> {
+
+                const firstName = String(player.name || '')
+                .trim()
+                .split(' ')[0];
+
+                const displayName =
+                firstName.charAt(0).toUpperCase() +
+                firstName.slice(1).toLowerCase();
+
+                %>
 
                 <tr
                   class="<%= index === 0 ? 'leader-gold' : index === 1 ? 'leader-silver' : index === 2 ? 'leader-bronze' : '' %>">
@@ -57,7 +67,7 @@
                   </td>
 
                   <td class="leader-name">
-                    <%= formatDisplayName(player.name) %>
+                    <%= displayName %>
                   </td>
 
                   <td class="leader-points">
@@ -102,3 +112,54 @@
   </div>
 
   <%- include('partials/footer') %>
+
+  <% 
+  const currentRankIndex = currentUser 
+    ? leaderboard.findIndex(player => Number(player.id) === Number(currentUser.id))
+    : -1;
+
+  const isCurrentUserFirst = currentRankIndex === 0;
+%>
+
+<% if (isCurrentUserFirst) { %>
+  <div id="leaderWelcomeModal" class="leader-welcome-modal">
+    <div class="leader-welcome-card">
+      <div class="leader-cup">🏆</div>
+      <h2>¡Vas en primer lugar!</h2>
+      <p>Estás liderando la Polla Mundial 2026. Sigue así 🔥</p>
+      <button type="button" onclick="closeLeaderWelcome()">Continuar</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <script>
+    function closeLeaderWelcome() {
+      document.getElementById("leaderWelcomeModal").style.display = "none";
+      sessionStorage.setItem("leaderWelcomeShown", "true");
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const modal = document.getElementById("leaderWelcomeModal");
+
+      if (sessionStorage.getItem("leaderWelcomeShown") === "true") {
+        modal.style.display = "none";
+        return;
+      }
+
+      confetti({
+        particleCount: 180,
+        spread: 120,
+        origin: { y: 0.6 }
+      });
+
+      setTimeout(() => {
+        confetti({
+          particleCount: 120,
+          spread: 90,
+          origin: { y: 0.4 }
+        });
+      }, 800);
+    });
+  </script>
+<% } %>

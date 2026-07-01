@@ -3650,3 +3650,51 @@ button[type="submit"].danger,
   text-align: center;
 }
 
+.leader-welcome-modal{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(2, 6, 23, .78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.leader-welcome-card{
+  width: min(420px, 92vw);
+  padding: 34px 28px;
+  border-radius: 28px;
+  text-align: center;
+  background: linear-gradient(135deg, #071426, #12233f);
+  border: 1px solid rgba(250, 204, 21, .45);
+  box-shadow: 0 24px 80px rgba(0,0,0,.45);
+}
+
+.leader-cup{
+  font-size: 64px;
+  margin-bottom: 12px;
+}
+
+.leader-welcome-card h2{
+  color: #facc15;
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.leader-welcome-card p{
+  color: #e5e7eb;
+  font-size: 17px;
+  margin-bottom: 24px;
+}
+
+.leader-welcome-card button{
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 30px;
+  background: #facc15;
+  color: #111827;
+  font-weight: 900;
+  cursor: pointer;
+}
+
