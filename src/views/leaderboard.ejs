@@ -18,8 +18,24 @@
     </div>
   </div>
 
+  <% const demoPlayers = [
+    { name: 'Carlos', points: 10, exacts: 5, outcomes: 6, predictions_checked: 10, total_predictions: 10 },
+    { name: 'Laura', points: 9, exacts: 4, outcomes: 5, predictions_checked: 10, total_predictions: 10 },
+    { name: 'Mateo', points: 8, exacts: 4, outcomes: 4, predictions_checked: 10, total_predictions: 10 },
+    { name: 'Ana', points: 7, exacts: 3, outcomes: 4, predictions_checked: 10, total_predictions: 10 },
+    { name: 'Sofía', points: 6, exacts: 3, outcomes: 3, predictions_checked: 10, total_predictions: 10 },
+    { name: 'Diego', points: 5, exacts: 2, outcomes: 3, predictions_checked: 10, total_predictions: 10 },
+    { name: 'Valentina', points: 4, exacts: 2, outcomes: 2, predictions_checked: 10, total_predictions: 10 },
+    { name: 'Julián', points: 3, exacts: 1, outcomes: 2, predictions_checked: 10, total_predictions: 10 },
+    { name: 'Paula', points: 2, exacts: 1, outcomes: 1, predictions_checked: 10, total_predictions: 10 },
+    { name: 'Andrés', points: 1, exacts: 0, outcomes: 1, predictions_checked: 10, total_predictions: 10 }
+  ];
+
+  const leaderboardItems = leaderboard.length >= 10 ? leaderboard : [...leaderboard, ...demoPlayers].slice(0, 10);
+  %>
+
   <div class="card table-card leaderboard-table-card-v2">
-    <% if (leaderboard.length===0) { %>
+    <% if (leaderboardItems.length===0) { %>
       <p class="muted">Todavía no hay participantes registrados.</p>
       <% } else { %>
 
@@ -37,7 +53,7 @@
               </tr>
             </thead>
             <tbody>
-              <% leaderboard.forEach((player, index)=> {
+              <% leaderboardItems.forEach((player, index)=> {
 
                 const firstName = String(player.name || '')
                 .trim()
@@ -113,53 +129,3 @@
 
   <%- include('partials/footer') %>
 
-  <% 
-  const currentRankIndex = currentUser 
-    ? leaderboard.findIndex(player => Number(player.id) === Number(currentUser.id))
-    : -1;
-
-  const isCurrentUserFirst = currentRankIndex === 0;
-%>
-
-<% if (isCurrentUserFirst) { %>
-  <div id="leaderWelcomeModal" class="leader-welcome-modal">
-    <div class="leader-welcome-card">
-      <div class="leader-cup">🏆</div>
-      <h2>¡Vas en primer lugar!</h2>
-      <p>Estás liderando la Polla Mundial 2026. Sigue así 🔥</p>
-      <button type="button" onclick="closeLeaderWelcome()">Continuar</button>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-
-  <script>
-    function closeLeaderWelcome() {
-      document.getElementById("leaderWelcomeModal").style.display = "none";
-      sessionStorage.setItem("leaderWelcomeShown", "true");
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-      const modal = document.getElementById("leaderWelcomeModal");
-
-      if (sessionStorage.getItem("leaderWelcomeShown") === "true") {
-        modal.style.display = "none";
-        return;
-      }
-
-      confetti({
-        particleCount: 180,
-        spread: 120,
-        origin: { y: 0.6 }
-      });
-
-      setTimeout(() => {
-        confetti({
-          particleCount: 120,
-          spread: 90,
-          origin: { y: 0.4 }
-        });
-      }, 800);
-    });
-  </script>
-<% } %>

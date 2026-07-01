@@ -12,6 +12,7 @@ const { syncResultsOnce, startResultsSync } = require("./results-sync");
 const {
   normalizeEmail,
   cleanText,
+  formatDisplayName,
   parsePredictionScores,
   parseNonNegativeInt,
   parseKickoffFromBogotaInput,
@@ -50,13 +51,21 @@ app.use(
 );
 
 app.locals.config = config;
+app.locals.formatDisplayName = formatDisplayName;
 app.locals.helpers = {
+  formatDisplayName,
   formatDateTime: (value) => formatDateTime(value, config.timezone),
   formatTime: (value) => formatTime(value, config.timezone),
   formatDateGroup: (value) => formatDateGroup(value, config.timezone),
   toBogotaDateTimeLocal: (value) => toBogotaDateTimeLocal(value, config.timezone),
   matchResultLabel
 };
+app.use((req, res, next) => {
+  res.locals.formatDisplayName = app.locals.formatDisplayName;
+  res.locals.helpers = app.locals.helpers;
+  res.locals.config = app.locals.config;
+  next();
+});
 
 function flash(req, type, message) {
   req.session.flash = { type, message };
@@ -159,10 +168,33 @@ app.use(async (req, res, next) => {
     res.locals.flash = req.session.flash || null;
     delete req.session.flash;
     res.locals.currentUser = null;
+    res.locals.rankNotification = null;
     if (req.session.userId) {
       const user = await db.getUserById(req.session.userId);
       if (user) {
         res.locals.currentUser = user;
+
+        const leaderboard = await db.getLeaderboard();
+        const rankIndex = leaderboard.findIndex((player) => Number(player.id) === Number(user.id));
+        if (rankIndex >= 0 && rankIndex < 3) {
+          const position = rankIndex + 1;
+          const rankTitles = [
+            '¡Vas en primer lugar!',
+            '¡Vas en segundo lugar!',
+            '¡Vas en tercer lugar!'
+          ];
+          const rankMessages = [
+            'Felicitaciones, estás liderando la Polla Mundial 2026. Sigue así y mantén la ventaja 🔥',
+            'Excelente, estás segundo en la Polla Mundial 2026. A un paso de la cima 🥈',
+            'Muy bien, estás en el podio de la Polla Mundial 2026. Sigue sumando puntos 🥉'
+          ];
+          res.locals.rankNotification = {
+            position,
+            title: rankTitles[rankIndex],
+            message: rankMessages[rankIndex],
+            icon: position === 1 ? '🏆' : position === 2 ? '🥈' : '🥉'
+          };
+        }
       } else {
         delete req.session.userId;
       }

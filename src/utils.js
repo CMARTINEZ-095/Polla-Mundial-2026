@@ -187,6 +187,7 @@ module.exports = {
   formatDateTime,
   formatTime,
   formatDateGroup,
+  formatDisplayName,
   toBogotaDateTimeLocal,
   isMatchLocked,
   matchResultLabel,

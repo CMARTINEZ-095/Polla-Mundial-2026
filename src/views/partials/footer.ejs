@@ -5,7 +5,54 @@
     <span>Horarios mostrados en <%= config.timezone %>.</span>
   </div>
 </footer>
+
+<% if (rankNotification) { %>
+  <div id="rankNotificationModal" class="leader-welcome-modal">
+    <div class="leader-welcome-card">
+      <div class="leader-cup"><%= rankNotification.icon %></div>
+      <h2><%= rankNotification.title %></h2>
+      <p><%= rankNotification.message %></p>
+      <button type="button" onclick="closeRankNotification()">Continuar</button>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script>
+    function closeRankNotification() {
+      document.getElementById('rankNotificationModal').style.display = 'none';
+      sessionStorage.setItem('rankNotificationShown', 'true');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const modal = document.getElementById('rankNotificationModal');
+      if (!modal) return;
+
+      if (sessionStorage.getItem('rankNotificationShown') === 'true') {
+        modal.style.display = 'none';
+        return;
+      }
+
+      modal.style.display = 'flex';
+      confetti({
+        particleCount: 180,
+        spread: 120,
+        origin: { y: 0.6 }
+      });
+      setTimeout(function () {
+        confetti({
+          particleCount: 120,
+          spread: 90,
+          origin: { y: 0.4 }
+        });
+      }, 800);
+    });
+  </script>
+<% } %>
+
 <script>
+  if (window.location.pathname === '/login') {
+    sessionStorage.removeItem('rankNotificationShown');
+  }
+
   document.addEventListener('click', function (event) {
     if (event.target.closest('.main-nav a')) {
       document.body.classList.remove('nav-open');
