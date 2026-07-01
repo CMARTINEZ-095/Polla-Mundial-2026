@@ -4099,3 +4099,30 @@ button[type="submit"].danger,
   border-color: #ffd43b;
   box-shadow: 0 0 0 3px rgba(255, 212, 59, .15);
 }
+
+.community-toggle{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    width:100%;
+    min-height:40px;
+    padding:0 18px;
+
+    margin-top:14px;
+
+    background:#9a76f5;
+    color:#07152c;
+
+    border-radius:999px;
+
+    font-size:14px;
+    font-weight:900;
+
+    text-decoration:none;
+    transition:.2s;
+}
+
+.community-toggle:hover{
+    background:#9a76f5;
+}
